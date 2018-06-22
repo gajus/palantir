@@ -34,9 +34,9 @@ export type AlertConfigurationType = {|
 
 export type MonitorConfigurationType = {|
   +after?: () => Promise<void>,
-  +afterTest?: (configuration?: TestConfigurationType, context?: TestContextType) => Promise<void>,
+  +afterTest?: (test?: RegisteredTestType, context?: TestContextType) => Promise<void>,
   +before?: () => Promise<void>,
-  +beforeTest?: (configuration?: TestConfigurationType) => Promise<TestContextType>
+  +beforeTest?: (test?: RegisteredTestType) => Promise<TestContextType>
 |};
 
 type MonitorType = {|

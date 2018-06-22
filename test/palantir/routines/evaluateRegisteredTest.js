@@ -78,7 +78,7 @@ test('uses afterTest to teardown code', async (t) => {
   await evaluateRegisteredTest(configuration, registeredTest);
 
   t.true(spy.calledOnce);
-  t.true(spy.calledWith(expectedConfiguration, expectedContext));
+  t.true(spy.calledWith(registeredTest, expectedContext));
 });
 
 test('marks test as failing if query throws an error', async (t) => {

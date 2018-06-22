@@ -68,7 +68,7 @@ type QueryResultType = *;
 type TestConfigurationType = Object;
 
 /**
- * @property configuration Test-specific configuration passed to `beforeTest` and `afterTest` as the first parameter.
+ * @property configuration Test-specific configuration.
  * @property description Test description.
  * @property interval Returns an interval (in milliseconds) at which the test should be executed.
  * @property tags An array of tags used for organisation of tests.
@@ -123,9 +123,9 @@ Palantir monitor program accepts `configuration` configuration (a path to a scri
  */
 type ConfigurationType = {|
   +after: () => Promise<void>,
-  +afterTest?: (configuration?: TestConfigurationType, context?: TestContextType) => Promise<void>,
+  +afterTest?: (test: RegisteredTestType, context?: TestContextType) => Promise<void>,
   +before: () => Promise<void>,
-  +beforeTest?: (configuration?: TestConfigurationType) => Promise<TestContextType>
+  +beforeTest?: (test: RegisteredTestType) => Promise<TestContextType>
 |};
 
 ```
@@ -142,7 +142,7 @@ import {
 let pool;
 
 export default {
-  afterTest: async (configuration, context) => {
+  afterTest: async (test, context) => {
     await context.connection.release();
   },
   before: async () => {
@@ -192,8 +192,8 @@ import {
 let pool;
 
 export default {
-  afterTest: async (configuration, context) => {
-    if (!configuration.database) {
+  afterTest: async (test, context) => {
+    if (!test.configuration.database) {
       return;
     }
 
@@ -202,8 +202,8 @@ export default {
   before: async () => {
     pool = await createPool('postgres://');
   },
-  beforeTest: async (configuration) => {
-    if (!configuration.database) {
+  beforeTest: async (test) => {
+    if (!test.configuration.database) {
       return {};
     }
 

@@ -13,7 +13,7 @@ const log = Logger.child({
 });
 
 export default async (configuration: MonitorConfigurationType, registeredTest: RegisteredTestType) => {
-  const context = configuration.beforeTest ? await configuration.beforeTest(registeredTest.configuration) : {};
+  const context = configuration.beforeTest ? await configuration.beforeTest(registeredTest) : {};
 
   let completedWithError = false;
 
@@ -46,6 +46,6 @@ export default async (configuration: MonitorConfigurationType, registeredTest: R
   }));
 
   if (configuration.afterTest) {
-    await configuration.afterTest(registeredTest.configuration, context);
+    await configuration.afterTest(registeredTest, context);
   }
 };
