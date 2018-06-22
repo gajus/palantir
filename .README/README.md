@@ -241,12 +241,12 @@ In practice, this can be used to configure a system that notifies other systems 
 /**
  * @file Using https://www.twilio.com/ to send a text message when tests fail and when tests recover.
  */
-import Twilio from 'twilio';
+import createTwilio from 'twilio';
 
-const twilio = new Twilio('ACCOUNT SID', 'AUTH TOKEN');
+const twilio = createTwilio('ACCOUNT SID', 'AUTH TOKEN');
 
 const sendMessage = (message) => {
-  client.messages.create({
+  twilio.messages.create({
     body: message,
     to: '+12345678901',
     from: '+12345678901'
@@ -301,15 +301,15 @@ Use `createAlertController` to implement alert throttling, e.g.
 
 ```js
 import interval from 'human-interval';
-import Twilio from 'twilio';
+import createTwilio from 'twilio';
 import {
   createAlertController
 } from 'palantir';
 
-const twilio = new Twilio('ACCOUNT SID', 'AUTH TOKEN');
+const twilio = createTwilio('ACCOUNT SID', 'AUTH TOKEN');
 
 const sendMessage = (message) => {
-  client.messages.create({
+  twilio.messages.create({
     body: message,
     to: '+12345678901',
     from: '+12345678901'
