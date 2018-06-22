@@ -82,6 +82,7 @@
     "alerting",
     "monitoring"
   ],
+  "main": "./dist/index.js",
   "name": "palantir",
   "nyc": {
     "all": true,
@@ -106,5 +107,5 @@
     "precommit": "npm run lint && npm run test",
     "test": "NODE_ENV=test nyc ava --verbose --serial --concurrency 1 && nyc report --reporter=text"
   },
-  "version": "1.0.1"
+  "version": "1.0.0"
 }
