@@ -1,0 +1,8 @@
+{
+  "extends": [
+    "canonical/react"
+  ],
+  "rules": {
+    "filenames/match-regex": 0
+  }
+}

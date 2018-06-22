@@ -1,0 +1,5 @@
+[ignore]
+.*/node_modules/.*/test/.*
+
+[options]
+module.name_mapper='^.*\.scss$' -> 'css-module-flow'

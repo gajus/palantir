@@ -1,0 +1,23 @@
+{
+  "plugins": [
+    "@babel/transform-flow-strip-types"
+  ],
+  "presets": [
+    [
+      "@babel/env",
+      {
+        "exclude": [
+          "transform-regenerator"
+        ],
+        "loose": true,
+        "targets": {
+          "browsers": [
+            ">1%"
+          ]
+        },
+        "useBuiltIns": false
+      }
+    ],
+    "@babel/preset-react"
+  ]
+}

@@ -1,0 +1,124 @@
+:global {
+  html,
+  body {
+    height: 100%;
+  }
+
+  body {
+    font-size: 16px;
+    font-family: 'Roboto', sans-serif;
+    line-height: 1.5;
+    display: flex;
+    flex-flow: column;
+    flex-shrink: 0;
+    flex-grow: 1;
+    overflow-x: hidden;
+    overflow-y: scroll;
+
+    font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+
+    background: #333;
+
+    -webkit-text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    outline: none;
+  }
+
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  button {
+    border: none;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h5 {
+    font-weight: inherit;
+    font: inherit;
+  }
+
+  li {
+    list-style: none;
+  }
+
+  table {
+    border-spacing: 0;
+  }
+
+  p + p {
+    margin-top: 5px;
+  }
+
+  // @see https://stackoverflow.com/a/23211766/368691
+  input {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+  }
+
+  // @see https://stackoverflow.com/a/36043286/368691
+  input:not([type="radio"]):not([type="checkbox"]) {
+    border-radius: 0;
+  }
+
+  #app {
+    display: flex;
+    flex-flow: column;
+    flex-shrink: 0;
+    flex-grow: 1;
+  }
+
+  #dashboard {
+    margin: 20px;
+    overflow: hidden;
+  }
+}
+
+.tests {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  grid-gap: 20px;
+
+  h2 {
+    font-size: 16px;
+  }
+
+  .description {
+    border-bottom: 1px solid #fff;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    font-weight: bold;
+  }
+
+  & > li {
+    background: #d6292d;
+    color: #fff;
+    padding: 20px;
+  }
+}
+
+.tags {
+  overflow: hidden;
+  margin-top: 10px;
+
+  li {
+    display: inline-block;
+    background: #860004;
+    padding: 5px 10px;
+    margin: 0 5px 0 0;
+  }
+}

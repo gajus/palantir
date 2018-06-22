@@ -1,0 +1,54 @@
+scalar JSON
+scalar DateTime
+
+interface Node {
+  id: ID!
+}
+
+interface Edge {
+  cursor: String!
+}
+
+interface Connection {
+  totalCount: Int!
+  pageInfo: PageInfo!
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  # hasPreviousPage: Boolean!
+  # startCursor: String
+  # endCursor: String
+}
+
+type RegisteredTestsConnection implements Connection {
+  totalCount: Int!
+  edges: [RegisteredTestsEdge!]!
+  pageInfo: PageInfo!
+}
+
+type RegisteredTestsEdge implements Edge {
+  cursor: String!
+  node: RegisteredTest
+}
+
+type Interval {
+  milliseconds: Int!
+  human: String!
+}
+
+type RegisteredTest implements Node {
+  id: ID!
+  configuration: JSON
+  description: String!
+  interval: Interval!
+  tags: [String!]!
+  lastTestedAt: DateTime
+  testIsFailing: Boolean
+  consecutiveFailureCount: Int
+}
+
+type Query {
+  registeredTests: RegisteredTestsConnection!
+  failingTests: RegisteredTestsConnection!
+}
