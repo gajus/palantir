@@ -47,39 +47,51 @@ const render = (failingTests: $ReadOnlyArray<RegisteredTestType>) => {
     throw new Error('app element is not present');
   }
 
-  const failingTestElements = failingTests.map((registeredTest) => {
-    let tagsElement;
+  let bodyElement;
 
-    if (registeredTest.tags) {
-      const tagElements = registeredTest.tags.map((tag) => {
-        return <li key={tag}>
-          {tag}
-        </li>;
-      });
+  if (failingTests.length) {
+    const failingTestElements = failingTests.map((registeredTest) => {
+      let tagsElement;
 
-      tagsElement = <Fragment>
-        <h2>
-          Tags
-        </h2>
+      if (registeredTest.tags) {
+        const tagElements = registeredTest.tags.map((tag) => {
+          return <li key={tag}>
+            {tag}
+          </li>;
+        });
 
-        <ul className={styles.tags}>
-          {tagElements}
-        </ul>
-      </Fragment>;
-    }
+        tagsElement = <Fragment>
+          <h2>
+            Tags
+          </h2>
 
-    return <li key={registeredTest.id}>
-      <p className={styles.description}>
-        {registeredTest.description}
+          <ul className={styles.tags}>
+            {tagElements}
+          </ul>
+        </Fragment>;
+      }
+
+      return <li key={registeredTest.id}>
+        <p className={styles.description}>
+          {registeredTest.description}
+        </p>
+        {tagsElement}
+      </li>;
+    });
+
+    bodyElement = <ul className={styles.tests}>
+      {failingTestElements}
+    </ul>;
+  } else {
+    bodyElement = <div className={styles.allTestsPassingMessage}>
+      <p>
+        All tests are passing.
       </p>
-      {tagsElement}
-    </li>;
-  });
+    </div>;
+  }
 
   ReactDOM.render(<div id='dashboard'>
-    <ul className={styles.tests}>
-      {failingTestElements}
-    </ul>
+    {bodyElement}
   </div>, app);
 };
 
