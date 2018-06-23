@@ -111,7 +111,7 @@ class FailingTestComponent extends React.Component<FailingTestComponentPropsType
   }
 }
 
-const render = (failingTests: $ReadOnlyArray<RegisteredTestType>) => {
+const render = (error: ?Error, failingTests: $ReadOnlyArray<RegisteredTestType>) => {
   const app = document.getElementById('app');
 
   if (!app) {
@@ -120,7 +120,14 @@ const render = (failingTests: $ReadOnlyArray<RegisteredTestType>) => {
 
   let bodyElement;
 
-  if (failingTests.length) {
+  if (error) {
+    // eslint-disable-next-line no-console
+    console.error(error);
+
+    bodyElement = <div id='error'>
+      Unable to load data
+    </div>;
+  } else if (failingTests.length) {
     const failingTestElements = failingTests.map((registeredTest) => {
       return <li key={registeredTest.id}>
         <FailingTestComponent registeredTest={registeredTest} />
@@ -144,16 +151,18 @@ const render = (failingTests: $ReadOnlyArray<RegisteredTestType>) => {
 };
 
 const main = async () => {
-  render([]);
-
   const graphqlClient = new ApolloClient({
     uri: window.PALANTIR.config.API_URL
   });
 
   while (true) {
-    const failingTests = await queryFailingTests(graphqlClient);
+    try {
+      const failingTests = await queryFailingTests(graphqlClient);
 
-    render(failingTests);
+      render(null, failingTests);
+    } catch (error) {
+      render(error, []);
+    }
 
     // @todo Use GraphQL subscriptions.
     await delay(5000);
