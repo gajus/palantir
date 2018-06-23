@@ -1,6 +1,5 @@
 // @flow
 
-import prettyMs from 'pretty-ms';
 import serializeError from 'serialize-error';
 import Logger from '../Logger';
 import type {
@@ -40,10 +39,6 @@ export default async (configuration: MonitorConfigurationType, registeredTest: R
   registeredTest.consecutiveFailureCount = completedWithError ? (registeredTest.consecutiveFailureCount || 0) + 1 : 0;
   registeredTest.lastTestedAt = Date.now();
   registeredTest.testIsFailing = completedWithError;
-
-  log.debug('assertion complete; delaying the next iteration for %s', prettyMs(registeredTest.interval(registeredTest.consecutiveFailureCount || 0), {
-    verbose: true
-  }));
 
   if (configuration.afterTest) {
     await configuration.afterTest(registeredTest, context);
