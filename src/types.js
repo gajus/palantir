@@ -23,7 +23,7 @@ type TestSuiteType = {|
   +tests: $ReadOnlyArray<TestType>
 |};
 
-export type TestSuiteFactoryType = () => TestSuiteType;
+export type TestSuiteFactoryType = (refreshTestSuite: () => void) => Promise<TestSuiteType> | TestSuiteType;
 
 export type RegisteredTestType = {|
   +id: string,

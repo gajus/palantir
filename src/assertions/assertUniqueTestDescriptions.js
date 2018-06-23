@@ -1,15 +1,16 @@
 // @flow
 
-import type {
-  TestType
-} from '../types';
 import Logger from '../Logger';
+
+type TestFragmentType = {
+  +description: string
+};
 
 const log = Logger.child({
   namespace: 'assertUniqueTestDescriptions'
 });
 
-export default (tests: $ReadOnlyArray<TestType>): void => {
+export default (tests: $ReadOnlyArray<TestFragmentType>): void => {
   const testMap = new Map();
 
   for (const test of tests) {

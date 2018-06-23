@@ -22,9 +22,6 @@ import {
 import {
   importModule
 } from '../../utilities';
-import type {
-  TestType
-} from '../../types';
 
 type ArgvType = {|
   +configuration?: string,
@@ -76,15 +73,27 @@ export const handler = async (argv: ArgvType) => {
     tests: argv.tests
   }, 'received %d test file path(s)', argv.tests.length);
 
-  const tests: Array<TestType> = [];
+  const monitor = await createMonitor(configuration);
+
+  const registerTestSuite = async (createTestSuite) => {
+    const testSuite = await createTestSuite(() => {
+      for (const test of testSuite.tests) {
+        monitor.unregisterTest(test);
+      }
+
+      registerTestSuite(createTestSuite);
+    });
+
+    for (const test of testSuite.tests) {
+      monitor.registerTest(test);
+    }
+  };
 
   for (const testFilePath of argv.tests) {
     const createTestSuite = importModule(testFilePath);
 
-    tests.push(...createTestSuite().tests);
+    registerTestSuite(createTestSuite);
   }
-
-  const monitor = await createMonitor(configuration, tests);
 
   const app = express();
 

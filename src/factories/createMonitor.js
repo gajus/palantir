@@ -21,11 +21,18 @@ const log = Logger.child({
   namespace: 'factories/createMonitor'
 });
 
+export default async (configuration: MonitorConfigurationType) => {
+  const throat = createThroat(1);
 
-export default async (configuration: MonitorConfigurationType, tests: $ReadOnlyArray<TestType>) => {
-  assertUniqueTestDescriptions(tests);
+  if (configuration.before) {
+    await configuration.before();
+  }
 
-  const registeredTests: $ReadOnlyArray<RegisteredTestType> = tests.map((test) => {
+  const registeredTests: Array<RegisteredTestType> = [];
+
+  const createRegisteredTest = (test): RegisteredTestType => {
+    assertUniqueTestDescriptions(registeredTests.concat([test]));
+
     const id = createTestId(test);
 
     return {
@@ -35,16 +42,10 @@ export default async (configuration: MonitorConfigurationType, tests: $ReadOnlyA
       lastTestedAt: null,
       testIsFailing: null
     };
-  });
+  };
 
-  const throat = createThroat(1);
-
-  if (configuration.before) {
-    await configuration.before();
-  }
-
-  const scheduleTest = async (registeredTest: RegisteredTestType) => {
-    createIntervalRoutine(async () => {
+  const scheduleTest = (registeredTest: RegisteredTestType) => {
+    const cancelIntervalRoutine = createIntervalRoutine(async () => {
       await throat(async () => {
         await evaluateRegisteredTest(configuration, registeredTest);
       });
@@ -57,17 +58,55 @@ export default async (configuration: MonitorConfigurationType, tests: $ReadOnlyA
 
       return delay;
     });
+
+    return cancelIntervalRoutine;
   };
 
-  for (const registeredTest of registeredTests) {
-    scheduleTest(registeredTest);
-  }
-
   // @todo Implement configuration.after.
+
+  const testScheduleWeakMap = new WeakMap();
 
   return {
     getRegisteredTests: () => {
       return registeredTests;
+    },
+    registerTest: (test: TestType) => {
+      const registeredTest = createRegisteredTest(test);
+
+      registeredTests.push(registeredTest);
+
+      const cancelTestSchedule = scheduleTest(registeredTest);
+
+      testScheduleWeakMap.set(registeredTest, cancelTestSchedule);
+
+      log.info({
+        test: registeredTest
+      }, 'registered test');
+    },
+    unregisterTest: (test: TestType) => {
+      const targetTestId = createTestId(test);
+
+      const maybeRegisteredTest = registeredTests.find((maybeTargetRegisteredTest) => {
+        return maybeTargetRegisteredTest.id === targetTestId;
+      });
+
+      if (!maybeRegisteredTest) {
+        throw new Error('Test not found.');
+      }
+
+      const cancelTestSchedule = testScheduleWeakMap.get(maybeRegisteredTest);
+
+      if (!cancelTestSchedule) {
+        throw new Error('Cancel test schedule callback not found.');
+      }
+
+      cancelTestSchedule();
+
+      registeredTests.splice(registeredTests.indexOf(maybeRegisteredTest), 1);
+
+      log.info({
+        test: maybeRegisteredTest
+      }, 'unregistered test');
     }
   };
 };
