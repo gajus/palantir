@@ -3,6 +3,7 @@
     "canonical/react"
   ],
   "rules": {
-    "filenames/match-regex": 0
+    "filenames/match-regex": 0,
+    "react/no-set-state": 0
   }
 }

@@ -88,7 +88,7 @@ export const handler = async (argv: ArgvType) => {
 
     scriptUrls.push(argv.basePath + 'static/main.bundle.js');
 
-    styleUrls.push('https://fonts.googleapis.com/css?family=Roboto');
+    styleUrls.push('https://fonts.googleapis.com/css?family=Source+Code+Pro|Roboto');
 
     const response = createResponseBody(
       {

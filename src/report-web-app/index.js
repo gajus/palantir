@@ -12,6 +12,14 @@ import type {
 } from '../types';
 import styles from './main.scss';
 
+type FailingTestComponentPropsType = {|
+  +registeredTest: RegisteredTestType
+|};
+
+type FailingTestComponentStateType = {|
+  queryResultOpen: boolean
+|};
+
 const queryFailingTests = async (graphqlClient: ApolloClient): Promise<$ReadOnlyArray<RegisteredTestType>> => {
   // eslint-disable-next-line no-restricted-syntax
   const query = gql`
@@ -22,6 +30,7 @@ const queryFailingTests = async (graphqlClient: ApolloClient): Promise<$ReadOnly
             id
             description
             tags
+            lastQueryResult
             lastTestedAt
             testIsFailing
           }
@@ -40,6 +49,68 @@ const queryFailingTests = async (graphqlClient: ApolloClient): Promise<$ReadOnly
   });
 };
 
+class FailingTestComponent extends React.Component<FailingTestComponentPropsType, FailingTestComponentStateType> {
+  constructor () {
+    super();
+
+    this.state = {
+      queryResultOpen: false
+    };
+  }
+
+  handleOpenQueryResult = () => {
+    this.setState({
+      queryResultOpen: true
+    });
+  };
+
+  render () {
+    const {
+      registeredTest
+    } = this.props;
+
+    let tagsElement;
+
+    if (registeredTest.tags) {
+      const tagElements = registeredTest.tags.map((tag) => {
+        return <li key={tag}>
+          {tag}
+        </li>;
+      });
+
+      tagsElement = <Fragment>
+        <h2>
+          Tags
+        </h2>
+
+        <ul className={styles.tags}>
+          {tagElements}
+        </ul>
+      </Fragment>;
+    }
+
+    let queryResultElement;
+
+    if (this.state.queryResultOpen) {
+      queryResultElement = <div className={styles.queryResult}>
+        {JSON.stringify(registeredTest.lastQueryResult, null, '  ')}
+      </div>;
+    } else {
+      queryResultElement = <div className={styles.showQueryResultButton} onClick={this.handleOpenQueryResult}>
+        Show last query result
+      </div>;
+    }
+
+    return <div className={styles.test}>
+      <p className={styles.description}>
+        {registeredTest.description}
+      </p>
+      {queryResultElement}
+      {tagsElement}
+    </div>;
+  }
+}
+
 const render = (failingTests: $ReadOnlyArray<RegisteredTestType>) => {
   const app = document.getElementById('app');
 
@@ -51,31 +122,8 @@ const render = (failingTests: $ReadOnlyArray<RegisteredTestType>) => {
 
   if (failingTests.length) {
     const failingTestElements = failingTests.map((registeredTest) => {
-      let tagsElement;
-
-      if (registeredTest.tags) {
-        const tagElements = registeredTest.tags.map((tag) => {
-          return <li key={tag}>
-            {tag}
-          </li>;
-        });
-
-        tagsElement = <Fragment>
-          <h2>
-            Tags
-          </h2>
-
-          <ul className={styles.tags}>
-            {tagElements}
-          </ul>
-        </Fragment>;
-      }
-
       return <li key={registeredTest.id}>
-        <p className={styles.description}>
-          {registeredTest.description}
-        </p>
-        {tagsElement}
+        <FailingTestComponent registeredTest={registeredTest} />
       </li>;
     });
 
