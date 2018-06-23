@@ -43,6 +43,7 @@ type RegisteredTest implements Node {
   description: String!
   interval: Interval!
   tags: [String!]!
+  lastQueryResult: JSON
   lastTestedAt: DateTime
   testIsFailing: Boolean
   consecutiveFailureCount: Int

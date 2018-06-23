@@ -2,10 +2,14 @@
 
 /* eslint-disable import/exports-last */
 
+type SerializableObjectType = {
+  +[key: string]: string | number | boolean | $ReadOnlyArray<SerializableObjectType> | SerializableObjectType
+};
+
 // eslint-disable-next-line flowtype/no-weak-types
 type TestContextType = Object;
 
-type QueryResultType = *;
+type QueryResultType = ?SerializableObjectType;
 
 // eslint-disable-next-line flowtype/no-weak-types
 type TestConfigurationType = Object;
@@ -28,6 +32,7 @@ export type TestSuiteFactoryType = (refreshTestSuite: () => void) => Promise<Tes
 export type RegisteredTestType = {|
   +id: string,
   consecutiveFailureCount: number | null,
+  lastQueryResult: QueryResultType,
   lastTestedAt: number | null,
   testIsFailing: boolean | null,
   ...TestType

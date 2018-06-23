@@ -19,6 +19,7 @@ const createTest = (id: string) => {
     interval: () => {
       return 100;
     },
+    lastQueryResult: null,
     lastTestedAt: null,
     query: async () => {},
     tags: [],

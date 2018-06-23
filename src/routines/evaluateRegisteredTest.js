@@ -16,7 +16,7 @@ export default async (configuration: MonitorConfigurationType, registeredTest: R
 
   let completedWithError = false;
 
-  let queryResult;
+  let queryResult = null;
 
   try {
     queryResult = await registeredTest.query(context);
@@ -39,6 +39,7 @@ export default async (configuration: MonitorConfigurationType, registeredTest: R
   registeredTest.consecutiveFailureCount = completedWithError ? (registeredTest.consecutiveFailureCount || 0) + 1 : 0;
   registeredTest.lastTestedAt = Date.now();
   registeredTest.testIsFailing = completedWithError;
+  registeredTest.lastQueryResult = queryResult;
 
   if (configuration.afterTest) {
     await configuration.afterTest(registeredTest, context);

@@ -17,6 +17,7 @@ const createTestNode = (registeredTest) => {
       }),
       milliseconds: registeredTest.interval(0)
     },
+    lastQueryResult: registeredTest.lastQueryResult,
     lastTestedAt: registeredTest.lastTestedAt ? new Date(registeredTest.lastTestedAt) : null,
     tags: registeredTest.tags,
     testIsFailing: registeredTest.testIsFailing

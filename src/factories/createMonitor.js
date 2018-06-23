@@ -39,6 +39,7 @@ export default async (configuration: MonitorConfigurationType) => {
       ...test,
       consecutiveFailureCount: null,
       id,
+      lastQueryResult: null,
       lastTestedAt: null,
       testIsFailing: null
     };
