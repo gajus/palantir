@@ -1,7 +1,6 @@
 // @flow
 
 import prettyMs from 'pretty-ms';
-import uuidv5 from 'uuid/v5';
 import createThroat from 'throat';
 import {
   evaluateRegisteredTest
@@ -16,18 +15,18 @@ import type {
   TestType
 } from '../types';
 import createIntervalRoutine from './createIntervalRoutine';
+import createTestId from './createTestId';
 
 const log = Logger.child({
   namespace: 'factories/createMonitor'
 });
 
-const PALANTIR_TEST = '6b53c21d-8d21-4352-b268-3542d8d9adf0';
 
 export default async (configuration: MonitorConfigurationType, tests: $ReadOnlyArray<TestType>) => {
   assertUniqueTestDescriptions(tests);
 
   const registeredTests: $ReadOnlyArray<RegisteredTestType> = tests.map((test) => {
-    const id = uuidv5(test.description, PALANTIR_TEST);
+    const id = createTestId(test);
 
     return {
       ...test,
