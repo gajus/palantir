@@ -11,6 +11,7 @@ Active monitoring and alerting system using user-defined Node.js scripts.
 
 * [Palantir](#palantir)
     * [Motivation](#palantir-motivation)
+        * [Further reading](#palantir-motivation-further-reading)
     * [Usage](#palantir-usage)
         * [`monitor` program](#palantir-usage-monitor-program)
         * [`alert` program](#palantir-usage-alert-program)
@@ -31,6 +32,11 @@ Existing monitoring software primarily focuses on enabling visual inspection of 
 Palantir is continuously performs user-defined tests and only reports failing tests, i.e. if everything is working as expected, the system remains silent. This allows service developers/maintainers to focus on defining tests that provide early warnings about the errors that are about to occur and take preventative actions when alerts occur.
 
 Palantir decouples monitoring, alerting and reporting mechanisms. This method allows distributed monitoring and role-based, tag-based alerting system architecture.
+
+<a name="palantir-motivation-further-reading"></a>
+### Further reading
+
+* [Ensuring good service health by automating thorough integration testing and alerting](https://medium.com/@gajus/d507572a2618)
 
 <a name="palantir-usage"></a>
 ## Usage
@@ -88,7 +94,7 @@ type QueryResultType = *;
 type TestConfigurationType = Object;
 
 /**
- * @property configuration Test-specific configuration passed to `beforeTest` and `afterTest` as the first parameter.
+ * @property configuration Test-specific configuration.
  * @property description Test description.
  * @property interval Returns an interval (in milliseconds) at which the test should be executed.
  * @property tags An array of tags used for organisation of tests.
@@ -144,9 +150,9 @@ Palantir monitor program accepts `configuration` configuration (a path to a scri
  */
 type ConfigurationType = {|
   +after: () => Promise<void>,
-  +afterTest?: (configuration?: TestConfigurationType, context?: TestContextType) => Promise<void>,
+  +afterTest?: (test: RegisteredTestType, context?: TestContextType) => Promise<void>,
   +before: () => Promise<void>,
-  +beforeTest?: (configuration?: TestConfigurationType) => Promise<TestContextType>
+  +beforeTest?: (test: RegisteredTestType) => Promise<TestContextType>
 |};
 
 ```
@@ -163,7 +169,7 @@ import {
 let pool;
 
 export default {
-  afterTest: async (configuration, context) => {
+  afterTest: async (test, context) => {
     await context.connection.release();
   },
   before: async () => {
@@ -213,8 +219,8 @@ import {
 let pool;
 
 export default {
-  afterTest: async (configuration, context) => {
-    if (!configuration.database) {
+  afterTest: async (test, context) => {
+    if (!test.configuration.database) {
       return;
     }
 
@@ -223,8 +229,8 @@ export default {
   before: async () => {
     pool = await createPool('postgres://');
   },
-  beforeTest: async (configuration) => {
-    if (!configuration.database) {
+  beforeTest: async (test) => {
+    if (!test.configuration.database) {
       return {};
     }
 
@@ -263,12 +269,12 @@ In practice, this can be used to configure a system that notifies other systems 
 /**
  * @file Using https://www.twilio.com/ to send a text message when tests fail and when tests recover.
  */
-import Twilio from 'twilio';
+import createTwilio from 'twilio';
 
-const twilio = new Twilio('ACCOUNT SID', 'AUTH TOKEN');
+const twilio = createTwilio('ACCOUNT SID', 'AUTH TOKEN');
 
 const sendMessage = (message) => {
-  client.messages.create({
+  twilio.messages.create({
     body: message,
     to: '+12345678901',
     from: '+12345678901'
@@ -324,15 +330,15 @@ Use `createAlertController` to implement alert throttling, e.g.
 
 ```js
 import interval from 'human-interval';
-import Twilio from 'twilio';
+import createTwilio from 'twilio';
 import {
   createAlertController
 } from 'palantir';
 
-const twilio = new Twilio('ACCOUNT SID', 'AUTH TOKEN');
+const twilio = createTwilio('ACCOUNT SID', 'AUTH TOKEN');
 
 const sendMessage = (message) => {
-  client.messages.create({
+  twilio.messages.create({
     body: message,
     to: '+12345678901',
     from: '+12345678901'

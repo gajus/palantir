@@ -18,6 +18,10 @@ Palantir is continuously performs user-defined tests and only reports failing te
 
 Palantir decouples monitoring, alerting and reporting mechanisms. This method allows distributed monitoring and role-based, tag-based alerting system architecture.
 
+### Further reading
+
+* [Ensuring good service health by automating thorough integration testing and alerting](https://medium.com/@gajus/d507572a2618)
+
 ## Usage
 
 ### `monitor` program
