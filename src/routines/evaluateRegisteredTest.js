@@ -4,12 +4,20 @@ import serializeError from 'serialize-error';
 import Logger from '../Logger';
 import type {
   MonitorConfigurationType,
-  RegisteredTestType
+  RegisteredTestType,
+  QueryResultType
 } from '../types';
 
 const log = Logger.child({
   namespace: 'evaluateRegisteredTest'
 });
+
+const updateTest = (registeredTest: RegisteredTestType, completedWithError: boolean, queryResult: QueryResultType) => {
+  registeredTest.consecutiveFailureCount = completedWithError ? (registeredTest.consecutiveFailureCount || 0) + 1 : 0;
+  registeredTest.lastTestedAt = Date.now();
+  registeredTest.testIsFailing = completedWithError;
+  registeredTest.lastQueryResult = queryResult;
+};
 
 export default async (configuration: MonitorConfigurationType, registeredTest: RegisteredTestType) => {
   const context = configuration.beforeTest ? await configuration.beforeTest(registeredTest) : {};
@@ -24,22 +32,22 @@ export default async (configuration: MonitorConfigurationType, registeredTest: R
     completedWithError = true;
 
     log.error({
-      error: serializeError(error)
+      error: serializeError(error),
+      test: registeredTest
     }, '%s query resulted in an error', registeredTest.description);
   }
 
-  if (!completedWithError && registeredTest.assert) {
-    if (!registeredTest.assert(queryResult)) {
-      completedWithError = true;
+  if (!completedWithError && registeredTest.assert && !registeredTest.assert(queryResult)) {
+    completedWithError = true;
 
-      log.error('%s assertion failed', registeredTest.description);
-    }
+    updateTest(registeredTest, completedWithError, queryResult);
+
+    log.error({
+      test: registeredTest
+    }, '%s assertion failed', registeredTest.description);
+  } else {
+    updateTest(registeredTest, completedWithError, queryResult);
   }
-
-  registeredTest.consecutiveFailureCount = completedWithError ? (registeredTest.consecutiveFailureCount || 0) + 1 : 0;
-  registeredTest.lastTestedAt = Date.now();
-  registeredTest.testIsFailing = completedWithError;
-  registeredTest.lastQueryResult = queryResult;
 
   if (configuration.afterTest) {
     await configuration.afterTest(registeredTest, context);

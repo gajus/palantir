@@ -9,7 +9,7 @@ type SerializableObjectType = {
 // eslint-disable-next-line flowtype/no-weak-types
 type TestContextType = Object;
 
-type QueryResultType = ?SerializableObjectType;
+export type QueryResultType = ?SerializableObjectType;
 
 // eslint-disable-next-line flowtype/no-weak-types
 type TestConfigurationType = Object;
