@@ -1,5 +1,8 @@
 // @flow
 
+import {
+  parse as parseUrl
+} from 'url';
 import path from 'path';
 import express from 'express';
 import serveStatic from 'serve-static';
@@ -73,7 +76,11 @@ export const handler = async (argv: ArgvType) => {
     }));
   }
 
-  app.use('/api', proxy(argv.palantirApiUrl));
+  app.use('/api', proxy(argv.palantirApiUrl, {
+    proxyReqPathResolver: () => {
+      return parseUrl(argv.palantirApiUrl).path;
+    }
+  }));
 
   app.use('/', (req, res) => {
     const scriptUrls = [];
