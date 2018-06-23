@@ -78,6 +78,11 @@
   "engines": {
     "node": ">=10"
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint && npm run test"
+    }
+  },
   "keywords": [
     "warning",
     "alerting",
@@ -105,7 +110,6 @@
     "dev": "NODE_ENV=production babel ./src --out-dir ./dist --copy-files --source-maps --watch",
     "generate-readme": "gitdown ./.README/README.md --output-file ./README.md",
     "lint": "eslint ./src && flow",
-    "precommit": "npm run lint && npm run test",
     "test": "NODE_ENV=test nyc ava --verbose --serial --concurrency 1 && nyc report --reporter=text"
   },
   "version": "1.0.0"
