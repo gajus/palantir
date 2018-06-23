@@ -79,7 +79,9 @@ export const handler = async (argv: ArgvType) => {
   const tests: Array<TestType> = [];
 
   for (const testFilePath of argv.tests) {
-    tests.push(...importModule(testFilePath));
+    const createTestSuite = importModule(testFilePath);
+
+    tests.push(...createTestSuite().tests);
   }
 
   const monitor = await createMonitor(configuration, tests);

@@ -18,6 +18,7 @@ Active monitoring and alerting system using user-defined Node.js scripts.
         * [`report` program](#palantir-usage-report-program)
     * [Specification](#palantir-specification)
         * [Palantir test](#palantir-specification-palantir-test)
+        * [Palantir test suite](#palantir-specification-palantir-test-suite)
         * [Monitor configuration](#palantir-specification-monitor-configuration)
         * [Alert configuration](#palantir-specification-alert-configuration)
         * [Alert controller](#palantir-specification-alert-controller)
@@ -51,7 +52,7 @@ $ palantir monitor --service-port 8080 --configuration ./monitor-configuration.j
 
 ```
 
-Every test file must export an array of Palantir tests.
+Every test file must export a function that creates a `TestSuiteType` (see [Palantir test suite](#palantir-test-suite)).
 
 * Refer to [Palantir test](#palantir-test) specification.
 * Refer to [Monitor configuration](#monitor-configuration) specification.
@@ -135,6 +136,60 @@ In practice, an example of a test used to check whether HTTP resource is availab
 ```
 
 Notice that the `assert` method is optional. If `query` method evaluates without an error and `assert` method is not defined, then the test is considered to be passing.
+
+<a name="palantir-specification-palantir-test-suite"></a>
+### Palantir test suite
+
+`monitor` program requires a list of file paths as an input. Every input file must export a function that creates a `TestSuiteType` object:
+
+```js
+type TestSuiteType = {|
+  +tests: $ReadOnlyArray<TestType>
+|};
+
+```
+
+Example:
+
+```js
+// @flow
+
+import axios from 'axios';
+import interval from 'human-interval';
+import type {
+  TestSuiteFactoryType
+} from 'palantir';
+
+const createIntervalCreator = (intervalTime) => {
+  return () => {
+    return intervalTime;
+  };
+};
+
+const createTestSuite: TestSuiteFactoryType = () => {
+  return {
+    tests: [
+      {
+        configuration: {},
+        description: 'https://applaudience.com/ responds with 200',
+        interval: createIntervalCreator(interval('30 seconds')),
+        query: async () => {
+          await axios('https://applaudience.com/', {
+            timeout: interval('10 seconds')
+          });
+        },
+        tags: [
+          'http',
+          'applaudience'
+        ]
+      }
+    ]
+  }
+};
+
+export default createTestSuite;
+
+```
 
 <a name="palantir-specification-monitor-configuration"></a>
 ### Monitor configuration

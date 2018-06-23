@@ -19,6 +19,12 @@ export type TestType = {|
   +assert?: (queryResult: QueryResultType) => boolean
 |};
 
+type TestSuiteType = {|
+  +tests: $ReadOnlyArray<TestType>
+|};
+
+export type TestSuiteFactoryType = () => TestSuiteType;
+
 export type RegisteredTestType = {|
   +id: string,
   consecutiveFailureCount: number | null,

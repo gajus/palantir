@@ -4,5 +4,6 @@ export {default as createAlertController} from './factories/createAlertControlle
 export type {
   AlertConfigurationType,
   MonitorConfigurationType,
-  RegisteredTestType
+  RegisteredTestType,
+  TestSuiteFactoryType
 } from './types';
