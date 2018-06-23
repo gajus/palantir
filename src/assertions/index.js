@@ -1,3 +1,3 @@
 // @flow
 
-export {default as assertUniqueTestDescriptions} from './assertUniqueTestDescriptions';
+export {default as assertUniqueTestIdPayloads} from './assertUniqueTestIdPayloads';

@@ -6,7 +6,7 @@ import {
   evaluateRegisteredTest
 } from '../routines';
 import {
-  assertUniqueTestDescriptions
+  assertUniqueTestIdPayloads
 } from '../assertions';
 import Logger from '../Logger';
 import type {
@@ -31,7 +31,7 @@ export default async (configuration: MonitorConfigurationType) => {
   const registeredTests: Array<RegisteredTestType> = [];
 
   const createRegisteredTest = (test): RegisteredTestType => {
-    assertUniqueTestDescriptions(registeredTests.concat([test]));
+    assertUniqueTestIdPayloads(registeredTests.concat([test]));
 
     const id = createTestId(test);
 

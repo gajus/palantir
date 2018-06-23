@@ -23,6 +23,11 @@ export type TestType = {|
   +assert?: (queryResult: QueryResultType) => boolean
 |};
 
+export type TestIdPayloadInputType = {
+  +description: string,
+  +tags: $ReadOnlyArray<string>
+};
+
 export type TestSuiteType = {|
   +tests: $ReadOnlyArray<TestType>
 |};
