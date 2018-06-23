@@ -22,6 +22,9 @@ import {
 import {
   importModule
 } from '../../utilities';
+import type {
+  TestSuiteType
+} from '../../types';
 
 type ArgvType = {|
   +configuration?: string,
@@ -76,7 +79,7 @@ export const handler = async (argv: ArgvType) => {
   const monitor = await createMonitor(configuration);
 
   const registerTestSuite = async (createTestSuite) => {
-    const testSuite = await createTestSuite(() => {
+    const testSuite: TestSuiteType = await createTestSuite(() => {
       for (const test of testSuite.tests) {
         monitor.unregisterTest(test);
       }

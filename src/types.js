@@ -19,7 +19,7 @@ export type TestType = {|
   +assert?: (queryResult: QueryResultType) => boolean
 |};
 
-type TestSuiteType = {|
+export type TestSuiteType = {|
   +tests: $ReadOnlyArray<TestType>
 |};
 

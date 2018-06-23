@@ -16,6 +16,7 @@ Active monitoring and alerting system using user-defined Node.js scripts.
         * [`monitor` program](#palantir-usage-monitor-program)
         * [`alert` program](#palantir-usage-alert-program)
         * [`report` program](#palantir-usage-report-program)
+        * [`test` program](#palantir-usage-test-program)
     * [Specification](#palantir-specification)
         * [Palantir test](#palantir-specification-palantir-test)
         * [Palantir test suite](#palantir-specification-palantir-test-suite)
@@ -79,6 +80,24 @@ $ palantir alert --configuration ./alert-configuration.js --palantir-api-url htt
 
 ```bash
 $ palantir report --service-port 8081 --palantir-api-url http://127.0.0.1:8080/
+
+```
+
+<a name="palantir-usage-test-program"></a>
+### <code>test</code> program
+
+`test` program runs tests once.
+
+```bash
+$ palantir test --configuration ./monitor-configuration.js ./tests/**/*
+
+```
+
+`test` program is used for test development. It allows to filter tests by description (`--match-description`) and by the test tags (`--match-tag`), e.g.
+
+```bash
+$ palantir test --match-description 'event count is greater' --configuration ./monitor-configuration.js ./tests/**/*
+$ palantir test --match-tag 'database' --configuration ./monitor-configuration.js ./tests/**/*
 
 ```
 

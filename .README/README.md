@@ -58,6 +58,23 @@ $ palantir report --service-port 8081 --palantir-api-url http://127.0.0.1:8080/
 
 ```
 
+### `test` program
+
+`test` program runs tests once.
+
+```bash
+$ palantir test --configuration ./monitor-configuration.js ./tests/**/*
+
+```
+
+`test` program is used for test development. It allows to filter tests by description (`--match-description`) and by the test tags (`--match-tag`), e.g.
+
+```bash
+$ palantir test --match-description 'event count is greater' --configuration ./monitor-configuration.js ./tests/**/*
+$ palantir test --match-tag 'database' --configuration ./monitor-configuration.js ./tests/**/*
+
+```
+
 ## Specification
 
 ### Palantir test

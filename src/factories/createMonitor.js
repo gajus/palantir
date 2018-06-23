@@ -83,6 +83,11 @@ export default async (configuration: MonitorConfigurationType) => {
         test: registeredTest
       }, 'registered test');
     },
+    runTest: async (test: TestType) => {
+      const registeredTest = createRegisteredTest(test);
+
+      await evaluateRegisteredTest(configuration, registeredTest);
+    },
     unregisterTest: (test: TestType) => {
       const targetTestId = createTestId(test);
 
