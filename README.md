@@ -25,7 +25,7 @@ Active monitoring and alerting system using user-defined Node.js scripts.
         * [Palantir HTTP API](#palantir-specification-palantir-http-api)
     * [Recipes](#palantir-recipes)
         * [Dynamically generating a test suite](#palantir-recipes-dynamically-generating-a-test-suite)
-        * [Refreshing the test suit](#palantir-recipes-refreshing-the-test-suit)
+        * [Refreshing a test suit](#palantir-recipes-refreshing-a-test-suit)
 
 
 <a name="palantir-motivation"></a>
@@ -476,8 +476,8 @@ const createTestSuite: TestSuiteFactoryType = async () => {
 
 In the above example, `getClients` is used to asynchronously retrieve information required to construct the test suite.
 
-<a name="palantir-recipes-refreshing-the-test-suit"></a>
-### Refreshing the test suit
+<a name="palantir-recipes-refreshing-a-test-suit"></a>
+### Refreshing a test suit
 
 In some cases, it might be desired that the test suite itself informs the monitor about new tests, e.g. the example in the [dynamically generating a test suite](dynamically-generating-a-test-suite) recipe retrieves information from an external datasource that may change over time. In this case, a test suite factory can inform the `monitor` program that it should recreate the test, e.g.
 
