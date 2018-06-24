@@ -6,7 +6,8 @@ import {
   createMonitor
 } from '../../factories';
 import {
-  importModule
+  importModule,
+  resolveFilePathExpression
 } from '../../utilities';
 import type {
   TestSuiteType
@@ -69,13 +70,15 @@ export const handler = async (argv: ArgvType) => {
     configuration = importModule(argv.configuration);
   }
 
+  const testFilePaths = resolveFilePathExpression(argv.tests);
+
   log.debug({
-    tests: argv.tests
-  }, 'received %d test file path(s)', argv.tests.length);
+    tests: testFilePaths
+  }, 'received %d test file path(s)', testFilePaths.length);
 
   const monitor = await createMonitor(configuration);
 
-  for (const testFilePath of argv.tests) {
+  for (const testFilePath of testFilePaths) {
     const createTestSuite = importModule(testFilePath);
 
     const testSuite: TestSuiteType = await createTestSuite();
