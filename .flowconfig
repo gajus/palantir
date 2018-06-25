@@ -1,5 +1,6 @@
 [ignore]
 .*/node_modules/.*/test/.*
+<PROJECT_ROOT>/dist/.*
 
 [options]
 module.name_mapper='^.*\.scss$' -> 'css-module-flow'
