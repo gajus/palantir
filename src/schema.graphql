@@ -37,6 +37,7 @@ type Interval {
   human: String!
 }
 
+# @todo Implement lastQueryError: JSON
 type RegisteredTest implements Node {
   id: ID!
   configuration: JSON
