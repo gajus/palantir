@@ -81,6 +81,24 @@ export const handler = async (argv: ArgvType) => {
 
   const monitor = await createMonitor(configuration);
 
+  const app = express();
+
+  app.set('trust proxy', true);
+  app.set('x-powered-by', false);
+
+  const graphqlMiddleware = createGraphqlMiddleware(async () => {
+    return {
+      context: {
+        monitor
+      },
+      schema
+    };
+  });
+
+  app.use('/', bodyParser.json(), graphqlMiddleware);
+
+  app.listen(argv.servicePort, '0.0.0.0');
+
   const registerTestSuite = async (createTestSuite) => {
     const testSuite: TestSuiteType = await createTestSuite(() => {
       for (const test of testSuite.tests) {
@@ -100,22 +118,4 @@ export const handler = async (argv: ArgvType) => {
 
     registerTestSuite(createTestSuite);
   }
-
-  const app = express();
-
-  app.set('trust proxy', true);
-  app.set('x-powered-by', false);
-
-  const graphqlMiddleware = createGraphqlMiddleware(async () => {
-    return {
-      context: {
-        monitor
-      },
-      schema
-    };
-  });
-
-  app.use('/', bodyParser.json(), graphqlMiddleware);
-
-  app.listen(argv.servicePort, '0.0.0.0');
 };
