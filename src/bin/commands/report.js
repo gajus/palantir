@@ -43,6 +43,8 @@ export const builder = (yargs: Object) => {
 export const handler = async (argv: ArgvType) => {
   const app = express();
 
+  const router = express.Router();
+
   app.set('etag', 'strong');
   app.set('trust proxy', true);
   app.set('x-powered-by', false);
@@ -68,21 +70,21 @@ export const handler = async (argv: ArgvType) => {
       stats: 'minimal'
     };
 
-    app.use(webpackDevMiddleware(bundler, devServerOptions));
+    router.use(webpackDevMiddleware(bundler, devServerOptions));
   } else {
-    app.use('/static', serveStatic(path.resolve(__dirname, '../../../.static'), {
+    router.use('/static', serveStatic(path.resolve(__dirname, '../../../.static'), {
       fallthrough: true,
       index: false
     }));
   }
 
-  app.use('/api', proxy(argv.palantirApiUrl, {
+  router.use('/api', proxy(argv.palantirApiUrl, {
     proxyReqPathResolver: () => {
       return parseUrl(argv.palantirApiUrl).path;
     }
   }));
 
-  app.use('/', (req, res) => {
+  router.use('/', (req, res) => {
     const scriptUrls = [];
     const styleUrls = [];
 
@@ -103,6 +105,8 @@ export const handler = async (argv: ArgvType) => {
     res
       .send(response);
   });
+
+  app.use(argv.basePath, router);
 
   app.listen(argv.servicePort);
 };
