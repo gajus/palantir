@@ -13,8 +13,8 @@ import {
 } from '../../factories';
 
 type ArgvType = {|
+  +apiUrl: string,
   +basePath: string,
-  +palantirApiUrl: string,
   +servicePort: number
 |};
 
@@ -25,12 +25,12 @@ export const description = 'Creates a web UI for the Palantir HTTP API.';
 export const builder = (yargs: Object) => {
   return yargs
     .options({
-      'base-path': {
-        default: '/',
+      'api-url': {
+        demand: true,
         type: 'string'
       },
-      'palantir-api-url': {
-        demand: true,
+      'base-path': {
+        default: '/',
         type: 'string'
       },
       'service-port': {
@@ -78,9 +78,9 @@ export const handler = async (argv: ArgvType) => {
     }));
   }
 
-  router.use('/api', proxy(argv.palantirApiUrl, {
+  router.use('/api', proxy(argv.apiUrl, {
     proxyReqPathResolver: () => {
-      return parseUrl(argv.palantirApiUrl).path;
+      return parseUrl(argv.apiUrl).path;
     }
   }));
 
@@ -94,7 +94,7 @@ export const handler = async (argv: ArgvType) => {
 
     const response = createResponseBody(
       {
-        API_URL: '/api',
+        API_URL: argv.apiUrl,
         BASE_PATH: argv.basePath
       },
       scriptUrls,

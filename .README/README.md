@@ -43,7 +43,7 @@ Every test file must export a function that creates a `TestSuiteType` (see [Pala
 `alert` program subscribes to [Palantir HTTP API](#palantir-http-api) and alerts other systems using user-defined configuration.
 
 ```bash
-$ palantir alert --configuration ./alert-configuration.js --palantir-api-url http://127.0.0.1:8080/
+$ palantir alert --configuration ./alert-configuration.js --api-url http://127.0.0.1:8080/
 
 ```
 
@@ -54,7 +54,7 @@ $ palantir alert --configuration ./alert-configuration.js --palantir-api-url htt
 `report` program creates a web UI for the [Palantir HTTP API](#palantir-http-api).
 
 ```bash
-$ palantir report --service-port 8081 --palantir-api-url http://127.0.0.1:8080/
+$ palantir report --service-port 8081 --api-url http://127.0.0.1:8080/
 
 ```
 
