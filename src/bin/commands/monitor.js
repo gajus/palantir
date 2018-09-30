@@ -5,6 +5,7 @@
 import fs from 'fs';
 import path from 'path';
 import express from 'express';
+import cors from 'cors';
 import bodyParser from 'body-parser';
 import GraphQLJSON from 'graphql-type-json';
 import {
@@ -82,6 +83,8 @@ export const handler = async (argv: ArgvType) => {
   const monitor = await createMonitor(configuration);
 
   const app = express();
+
+  app.use(cors());
 
   app.set('trust proxy', true);
   app.set('x-powered-by', false);

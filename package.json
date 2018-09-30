@@ -17,6 +17,7 @@
     "apollo-link-http": "^1.6.0-alpha.5",
     "apollo-server": "^2.1.0",
     "body-parser": "^1.18.3",
+    "cors": "^2.8.4",
     "delay": "^4.0.1",
     "express": "^5.0.0-alpha.6",
     "express-http-proxy": "^1.4.0",
