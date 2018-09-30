@@ -6,7 +6,9 @@ import React, {
   Fragment
 } from 'react';
 import ReactDOM from 'react-dom';
-import ApolloClient from 'apollo-boost';
+import {
+  ApolloClient
+} from 'apollo-boost';
 import type {
   RegisteredTestType
 } from '../types';
