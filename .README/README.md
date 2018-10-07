@@ -25,3 +25,19 @@ Palantir decouples monitoring, alerting and reporting mechanisms. This method al
 {"gitdown": "include", "file": "./USAGE.md"}
 {"gitdown": "include", "file": "./SPECIFICATION.md"}
 {"gitdown": "include", "file": "./RECIPES.md"}
+
+## Development
+
+There are multiple components required to run the service.
+
+Run `npm run dev` to watch the project and re-build upon detecting a change.
+
+In order to observe project changes and restart all the services use a program such as [`nodemon`](https://www.npmjs.com/package/nodemon), e.g.
+
+```bash
+$ NODE_ENV=development nodemon --watch dist --ext js,graphql dist/bin/index.js monitor ...
+$ NODE_ENV=development nodemon --watch dist --ext js,graphql dist/bin/index.js report ...
+
+```
+
+Use `--watch` attribute multiple times to include Palantir project code and your configuration/ test scripts.
