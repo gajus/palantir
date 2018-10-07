@@ -27,6 +27,7 @@ Active monitoring and alerting system using user-defined Node.js scripts.
     * [Recipes](#palantir-recipes)
         * [Dynamically generating a test suite](#palantir-recipes-dynamically-generating-a-test-suite)
         * [Refreshing a test suit](#palantir-recipes-refreshing-a-test-suit)
+    * [Development](#palantir-development)
 
 
 <a name="palantir-motivation"></a>
@@ -540,3 +541,20 @@ const createTestSuite: TestSuiteFactoryType = async (refreshTestSuite) => {
 
 ```
 
+
+<a name="palantir-development"></a>
+## Development
+
+There are multiple components required to run the service.
+
+Run `npm run dev` to watch the project and re-build upon detecting a change.
+
+In order to observe project changes and restart all the services use a program such as [`nodemon`](https://www.npmjs.com/package/nodemon), e.g.
+
+```bash
+$ NODE_ENV=development nodemon --watch dist --ext js,graphql dist/bin/index.js monitor ...
+$ NODE_ENV=development nodemon --watch dist --ext js,graphql dist/bin/index.js report ...
+
+```
+
+Use `--watch` attribute multiple times to include Palantir project code and your configuration/ test scripts.
