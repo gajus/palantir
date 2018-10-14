@@ -28,6 +28,7 @@ export const getFailingRegisteredTests = async (graphqlClient: ApolloClient): Pr
               stack
             }
             lastTestedAt
+            priority
             testIsFailing
           }
         }

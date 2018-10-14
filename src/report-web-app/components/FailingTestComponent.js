@@ -81,6 +81,14 @@ class FailingTestComponent extends React.Component<FailingTestComponentPropsType
           {registeredTest.name}
         </dd>
       </dl>
+      <dl className={styles.name}>
+        <dt>
+          Priority
+        </dt>
+        <dd>
+          {registeredTest.priority}
+        </dd>
+      </dl>
       {labelsElement}
       {errorElement}
       {navigationElement}

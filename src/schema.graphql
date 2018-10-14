@@ -59,6 +59,7 @@ type RegisteredTest implements Node {
   lastError: Error
   lastTestedAt: DateTime
   name: String!
+  priority: Int
   testIsFailing: Boolean
 }
 

@@ -22,6 +22,8 @@ const log = Logger.child({
   namespace: 'factories/createMonitor'
 });
 
+const MAX_PRIORITY = 100;
+
 export default async (configuration: MonitorConfigurationType) => {
   const throat = createThroat(1);
 
@@ -31,6 +33,7 @@ export default async (configuration: MonitorConfigurationType) => {
 
   const registeredTests: Array<RegisteredTestType> = [];
 
+  // @todo Validate the shape of the test at a runtime, e.g. the priority range.
   const createRegisteredTest = (test): RegisteredTestType => {
     assertUniqueTestIdPayloads(registeredTests.concat([
       {
@@ -50,7 +53,9 @@ export default async (configuration: MonitorConfigurationType) => {
       lastError: null,
       lastTestedAt: null,
       testIsFailing: null,
-      ...test
+      ...test,
+      // eslint-disable-next-line sort-keys
+      priority: typeof test.priority === 'number' ? test.priority : MAX_PRIORITY
     };
   };
 

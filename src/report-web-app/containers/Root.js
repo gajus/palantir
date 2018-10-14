@@ -122,14 +122,19 @@ class Root extends React.Component<void, RootStateType> {
         Unable to load the failing test cases.
       </div>;
     } else if (failingRegisteredTests.length) {
-      const failingTestElements = failingRegisteredTests.map((registeredTest) => {
-        return <li key={registeredTest.id}>
-          <FailingTestComponent
-            onExplainRegisteredTest={this.handleExplainRegisteredTest}
-            registeredTest={registeredTest}
-          />
-        </li>;
-      });
+      const failingTestElements = failingRegisteredTests
+        .slice(0)
+        .sort((a, b) => {
+          return a.priority - b.priority;
+        })
+        .map((registeredTest) => {
+          return <li key={registeredTest.id}>
+            <FailingTestComponent
+              onExplainRegisteredTest={this.handleExplainRegisteredTest}
+              registeredTest={registeredTest}
+            />
+          </li>;
+        });
 
       bodyElement = <ul className={styles.tests}>
         {failingTestElements}

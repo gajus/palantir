@@ -32,6 +32,7 @@ export type LabelCollectionType = $ReadOnlyArray<LabelPairType>;
  * @property interval A function that describes the time when the test needs to be re-run.
  * @property labels Arbitrary key=value labels used to categorise the tests.
  * @property name Unique name of the test. A combination of test + labels must be unique across all test suites.
+ * @property priority A numeric value (0-100) indicating the importance of the test. Low value indicates high priority.
  */
 export type TestType = {|
   +assert: (context: TestContextType) => Promise<boolean>,
@@ -39,7 +40,8 @@ export type TestType = {|
   +explain?: (context: TestContextType) => Promise<$ReadOnlyArray<SerializableObjectType> | SerializableObjectType>,
   +interval: (consecutiveFailureCount: number) => number,
   +labels: LabelsType,
-  +name: string
+  +name: string,
+  +priority: number
 |};
 
 export type TestIdPayloadInputType = {
