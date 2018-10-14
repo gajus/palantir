@@ -11,7 +11,20 @@ Active monitoring and alerting system using user-defined Node.js scripts.
 
 ![Dashboard screenshot](./.README/dashboard.png)
 
+<a name="palantir-features"></a>
+## Features
+
+* Programmatic test cases (write your own checks using Node.js). (🔥 ready)
+* Programmatic troubleshooting (write your own troubleshooting queries for test cases). (🔥 ready)
+* Programmatic notifications (write your own mechanism for sending notifications). (🔥 ready)
+* Track historical health of individual tests. (🗺️ in roadmap)
+* Filter tests using labels. (🗺️ in roadmap)
+* Create browser-session specific dashboards. (🗺️ in roadmap)
+* Produce charts using troubleshooting output. (🗺️ in roadmap)
+* Hosted Palantir instance with tests run using serverless infrastructure, persistent dashboards, integrated timeseries database and notifcations. (💵 commercial) (🗺️ in roadmap)
+
 * [Palantir](#palantir)
+    * [Features](#palantir-features)
     * [Motivation](#palantir-motivation)
         * [Further reading](#palantir-motivation-further-reading)
     * [Usage](#palantir-usage)
