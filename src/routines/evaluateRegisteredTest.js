@@ -2,52 +2,45 @@
 
 import serializeError from 'serialize-error';
 import Logger from '../Logger';
+import {
+  createTestPointer
+} from '../factories';
 import type {
   MonitorConfigurationType,
-  RegisteredTestType,
-  QueryResultType
+  RegisteredTestType
 } from '../types';
 
 const log = Logger.child({
   namespace: 'evaluateRegisteredTest'
 });
 
-const updateTest = (registeredTest: RegisteredTestType, completedWithError: boolean, queryResult: QueryResultType) => {
-  registeredTest.consecutiveFailureCount = completedWithError ? (registeredTest.consecutiveFailureCount || 0) + 1 : 0;
+const updateTest = (registeredTest: RegisteredTestType, assertionResult?: boolean, assertionError?: Error) => {
+  const testIsFailing = Boolean(assertionResult === false || assertionError);
+
+  registeredTest.consecutiveFailureCount = testIsFailing ? (registeredTest.consecutiveFailureCount || 0) + 1 : 0;
+  registeredTest.lastError = assertionError ? serializeError(assertionError) : null;
   registeredTest.lastTestedAt = Date.now();
-  registeredTest.testIsFailing = completedWithError;
-  registeredTest.lastQueryResult = queryResult;
+  registeredTest.testIsFailing = testIsFailing;
 };
 
 export default async (configuration: MonitorConfigurationType, registeredTest: RegisteredTestType) => {
   const context = configuration.beforeTest ? await configuration.beforeTest(registeredTest) : {};
 
-  let completedWithError = false;
-
-  let queryResult = null;
+  let assertionResult;
+  let assertionError;
 
   try {
-    queryResult = await registeredTest.query(context);
+    assertionResult = await registeredTest.assert(context);
   } catch (error) {
-    completedWithError = true;
+    assertionError = error;
 
-    log.error({
-      error: serializeError(error),
-      test: registeredTest
-    }, '%s query resulted in an error', registeredTest.description);
+    log.warn({
+      error: serializeError(assertionError),
+      test: createTestPointer(registeredTest)
+    }, '%s test assertion resulted in an error', registeredTest.name);
   }
 
-  if (!completedWithError && registeredTest.assert && !registeredTest.assert(queryResult)) {
-    completedWithError = true;
-
-    updateTest(registeredTest, completedWithError, queryResult);
-
-    log.error({
-      test: registeredTest
-    }, '%s assertion failed', registeredTest.description);
-  } else {
-    updateTest(registeredTest, completedWithError, queryResult);
-  }
+  updateTest(registeredTest, assertionResult, assertionError);
 
   if (configuration.afterTest) {
     await configuration.afterTest(registeredTest, context);

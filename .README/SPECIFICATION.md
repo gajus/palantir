@@ -5,27 +5,21 @@
 Palantir test is an object with the following properties:
 
 ```js
-type TestContextType = Object;
-
-type QueryResultType = *;
-
-type TestConfigurationType = Object;
-
 /**
- * @property configuration Test-specific configuration.
- * @property description Test description.
- * @property interval Returns an interval (in milliseconds) at which the test should be executed.
- * @property tags An array of tags used for organisation of tests.
- * @property query Method used to query the data. If method execution results in an error, the test fails.
- * @property assert Method used to evaluate the response of query. If method returns `false`, the test fails.
+ * @property assert Evaluates user defined script. The result (boolean) indicates if test is passing.
+ * @property configuration User defined configuration accessible by the `beforeTest`.
+ * @property explain Provides information about an assertion.
+ * @property interval A function that describes the time when the test needs to be re-run.
+ * @property labels Arbitrary key=value labels used to categorise the tests.
+ * @property name Unique name of the test. A combination of test + labels must be unique across all test suites.
  */
 type TestType = {|
-  +configuration?: TestConfigurationType,
-  +description: string,
+  +assert: (context: TestContextType) => Promise<boolean>,
+  +configuration?: SerializableObjectType,
+  +explain?: (context: TestContextType) => Promise<$ReadOnlyArray<SerializableObjectType> | SerializableObjectType>,
   +interval: (consecutiveFailureCount: number) => number,
-  +tags: $ReadOnlyArray<string>,
-  +query: (context: TestContextType) => Promise<QueryResultType>,
-  +assert?: (queryResult: QueryResultType) => boolean
+  +labels: LabelsType,
+  +name: string
 |};
 
 ```
@@ -33,26 +27,24 @@ type TestType = {|
 In practice, an example of a test used to check whether HTTP resource is available could look like this:
 
 ```js
-// This example uses `interval` and `axios` NPM packages.
-
 {
-  description: 'https://go2cinema.com/ responds with 200',
-  interval: () => {
-    return interval('30 seconds');
-  },
-  query: async () => {
-    await axios('https://go2cinema.com/', {
+  assert: async () => {
+    await request('https://applaudience.com/', {
       timeout: interval('10 seconds')
     });
   },
-  tags: [
-    'go2cinema'
-  ]
+  interval: () => {
+    return interval('30 seconds');
+  },
+  labels: {
+    project: 'applaudience',
+    domain: 'http',
+    type: 'liveness-check'
+  },
+  name: 'https://applaudience.com/ responds with 200'
 }
 
 ```
-
-Notice that the `assert` method is optional. If `query` method evaluates without an error and `assert` method is not defined, then the test is considered to be passing.
 
 ### Palantir test suite
 
@@ -70,7 +62,7 @@ Example:
 ```js
 // @flow
 
-import axios from 'axios';
+import request from 'axios';
 import interval from 'human-interval';
 import type {
   TestSuiteFactoryType
@@ -86,18 +78,17 @@ const createTestSuite: TestSuiteFactoryType = () => {
   return {
     tests: [
       {
-        configuration: {},
-        description: 'https://applaudience.com/ responds with 200',
-        interval: createIntervalCreator(interval('30 seconds')),
-        query: async () => {
-          await axios('https://applaudience.com/', {
+        assert: async () => {
+          await request('https://applaudience.com/', {
             timeout: interval('10 seconds')
           });
         },
-        tags: [
-          'http',
-          'applaudience'
-        ]
+        interval: createIntervalCreator(interval('30 seconds')),
+        labels: {
+          project: 'applaudience',
+          scope: 'http'
+        },
+        name: 'https://applaudience.com/ responds with 200'
       }
     ]
   }
@@ -107,11 +98,11 @@ export default createTestSuite;
 
 ```
 
-Note that the test suite factory may return a promise. Refer to [dynamically generating a test suite](dynamically-generating-a-test-suite) for a use case example.
+Note that the test suite factory may return a promise. Refer to [asynchronously creating a test suite](#asynchronously-creating-a-test-suite) for a use case example.
 
 ### Monitor configuration
 
-Palantir monitor program accepts `configuration` configuration (a path to a script).
+Palantir `monitor` program accepts `configuration` configuration (a path to a script).
 
 ```js
 /**
@@ -164,19 +155,19 @@ Test that requires connection to the database:
 
 ```js
 {
+  assert: (context) => {
+    return context.connection.any('SELECT 1');
+  },
   configuration: {
     database: true
   },
-  description: 'connects to the database',
   interval: () => {
     return interval('30 seconds');
   },
-  query: (context) => {
-    return context.connection.any('SELECT 1');
+  labels: {
+    scope: 'database'
   },
-  tags: [
-    'database'
-  ]
+  name: 'connects to the database'
 }
 
 ```
@@ -254,10 +245,10 @@ const sendMessage = (message) => {
 
 export default {
   onNewFailingTest: (test) => {
-    sendMessage('FAILURE ' + test.description + ' failed');
+    sendMessage('FAILURE ' + test.name + ' failed');
   },
   onRecoveredTest: (test) => {
-    sendMessage('RECOVERY ' + test.description + ' recovered');
+    sendMessage('RECOVERY ' + test.name + ' recovered');
   }
 };
 
@@ -317,7 +308,7 @@ const sendMessage = (message) => {
 
 const controller = createAlertController({
   delayFailure: (test) => {
-    if (test.tags.includes('database')) {
+    if (test.labels.scope === 'database') {
       return 0;
     }
 

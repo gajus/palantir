@@ -6,12 +6,12 @@ import assertUniqueTestIdPayloads from '../../../src/assertions/assertUniqueTest
 test('does not throw error if all descriptions are unique', (t) => {
   const tests = [
     {
-      description: 'foo',
-      tags: []
+      labels: {},
+      name: 'foo'
     },
     {
-      description: 'bar',
-      tags: []
+      labels: {},
+      name: 'bar'
     }
   ];
 
@@ -23,12 +23,12 @@ test('does not throw error if all descriptions are unique', (t) => {
 test('throws error if not all descriptions are unique', (t) => {
   const tests = [
     {
-      description: 'foo',
-      tags: []
+      labels: {},
+      name: 'foo'
     },
     {
-      description: 'foo',
-      tags: []
+      labels: {},
+      name: 'foo'
     }
   ];
 

@@ -1,6 +1,15 @@
 // @flow
 
 import prettyMs from 'pretty-ms';
+import {
+  NotFoundError
+} from '../errors';
+import {
+  createLabelCollection
+} from '../factories';
+import {
+  explainTest
+} from '../routines';
 import type {
   ResolverType
 } from '../types';
@@ -9,7 +18,14 @@ const createTestNode = (registeredTest) => {
   return {
     configuration: registeredTest.configuration,
     consecutiveFailureCount: registeredTest.consecutiveFailureCount,
-    description: registeredTest.description,
+    explain: (root, parameters) => {
+      if (!registeredTest.explain) {
+        return null;
+      }
+
+      return explainTest(parameters.configuration, registeredTest);
+    },
+    explainIsAvailable: Boolean(registeredTest.explain),
     id: registeredTest.id,
     interval: {
       human: prettyMs(registeredTest.interval(0), {
@@ -17,15 +33,16 @@ const createTestNode = (registeredTest) => {
       }),
       milliseconds: registeredTest.interval(0)
     },
-    lastQueryResult: registeredTest.lastQueryResult,
+    labels: createLabelCollection(registeredTest.labels),
+    lastError: registeredTest.lastError,
     lastTestedAt: registeredTest.lastTestedAt ? new Date(registeredTest.lastTestedAt) : null,
-    tags: registeredTest.tags,
+    name: registeredTest.name,
     testIsFailing: registeredTest.testIsFailing
   };
 };
 
 const Query: ResolverType<void> = {
-  failingTests: (root, parameters, context) => {
+  failingRegisteredTests: (root, parameters, context) => {
     const registeredTests = context.monitor.getRegisteredTests();
 
     const pageInfo = {
@@ -48,6 +65,19 @@ const Query: ResolverType<void> = {
       pageInfo,
       totalCount: registeredTests.length
     };
+  },
+  getRegisteredTestById: (root, parameters, context) => {
+    const registeredTests = context.monitor.getRegisteredTests();
+
+    const subjectRegisteredTest = registeredTests.find((maybeSubjectRegisteredTest) => {
+      return maybeSubjectRegisteredTest.id === parameters.registeredTestId;
+    });
+
+    if (!subjectRegisteredTest) {
+      throw new NotFoundError();
+    }
+
+    return createTestNode(subjectRegisteredTest);
   },
   registeredTests: (root, parameters, context) => {
     const registeredTests = context.monitor.getRegisteredTests();

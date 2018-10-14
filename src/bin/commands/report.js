@@ -24,6 +24,7 @@ export const description = 'Creates a web UI for the Palantir HTTP API.';
 // eslint-disable-next-line flowtype/no-weak-types
 export const builder = (yargs: Object) => {
   return yargs
+    .env('PALANTIR_REPORT')
     .options({
       'api-url': {
         demand: true,
@@ -56,21 +57,18 @@ export const handler = async (argv: ArgvType) => {
     /* eslint-disable global-require */
     const webpack = require('webpack');
     const webpackDevMiddleware = require('webpack-dev-middleware');
+    const webpackHotMiddleware = require('webpack-hot-middleware');
     /* eslint-enable global-require */
 
-    const bundler = webpack(webpackConfiguration);
+    const compiler = webpack(webpackConfiguration);
 
     const devServerOptions = {
-      colors: true,
-      hot: true,
-      noInfo: false,
-      outputPath: path.resolve(__dirname, '../../../.static'),
       publicPath: argv.basePath + 'static/',
-      quiet: false,
       stats: 'minimal'
     };
 
-    router.use(webpackDevMiddleware(bundler, devServerOptions));
+    router.use(webpackDevMiddleware(compiler, devServerOptions));
+    router.use(webpackHotMiddleware(compiler));
   } else {
     router.use('/static', serveStatic(path.resolve(__dirname, '../../../.static'), {
       fallthrough: true,

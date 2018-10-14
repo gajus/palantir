@@ -15,8 +15,8 @@ import type {
 
 type ArgvType = {|
   +configuration?: string,
-  +matchDescription?: string,
-  +matchTag?: string,
+  +matchLabel?: string,
+  +matchName?: string,
   +tests: $ReadOnlyArray<string>
 |};
 
@@ -26,17 +26,18 @@ export const description = 'Runs tests once. Used for test development.';
 // eslint-disable-next-line flowtype/no-weak-types
 export const builder = (yargs: Object) => {
   return yargs
+    .env('PALANTIR_TEST')
     .options({
       configuration: {
         description: 'Path to the Palantir monitor configuration file.',
         type: 'string'
       },
-      'match-description': {
-        description: 'Regex rule used to filter tests by description.',
+      'match-label': {
+        description: 'Regex rule used to filter tests by their labels. Labels are normalised to "key=value" values.',
         type: 'string'
       },
-      'match-tag': {
-        description: 'Regex rule used to filter tests by their tags.',
+      'match-name': {
+        description: 'Regex rule used to filter tests by name.',
         type: 'string'
       }
     });
@@ -44,19 +45,19 @@ export const builder = (yargs: Object) => {
 
 // eslint-disable-next-line complexity
 export const handler = async (argv: ArgvType) => {
-  let isTestDescriptionMatching;
+  let isTestNameMatching;
 
-  if (argv.matchDescription) {
-    isTestDescriptionMatching = (testDescription: string): boolean => {
-      return parseRegex(argv.matchDescription).test(testDescription);
+  if (argv.matchName) {
+    isTestNameMatching = (testName: string): boolean => {
+      return parseRegex(argv.matchName).test(testName);
     };
   }
 
-  let isTestTagMatching;
+  let isTestLabelMatching;
 
-  if (argv.matchTag) {
-    isTestTagMatching = (testTag: string): boolean => {
-      return parseRegex(argv.matchTag).test(testTag);
+  if (argv.matchLabel) {
+    isTestLabelMatching = (testLabel: string): boolean => {
+      return parseRegex(argv.matchLabel).test(testLabel);
     };
   }
 
@@ -84,34 +85,44 @@ export const handler = async (argv: ArgvType) => {
     const testSuite: TestSuiteType = await createTestSuite();
 
     for (const test of testSuite.tests) {
-      if (isTestDescriptionMatching && isTestTagMatching) {
-        const matchingTags = test.tags.filter(isTestTagMatching);
+      if (isTestNameMatching && isTestLabelMatching) {
+        const matchingLabels = Object
+          .keys(test.labels)
+          .map((label) => {
+            return label + '=' + test.labels[label];
+          })
+          .filter(isTestLabelMatching);
 
-        if (!isTestDescriptionMatching(test.description) || !matchingTags.length) {
-          log.debug('skipping test; test description or none of the test tags match the respective filters');
-
-          // eslint-disable-next-line no-continue
-          continue;
-        }
-      } else if (isTestDescriptionMatching) {
-        if (!isTestDescriptionMatching(test.description)) {
-          log.debug('skipping test; test description does not match the filter');
+        if (!isTestNameMatching(test.name) || !matchingLabels.length) {
+          log.debug('skipping test; test name or none of the test labels match the respective filters');
 
           // eslint-disable-next-line no-continue
           continue;
         }
-      } else if (isTestTagMatching) {
-        const matchingTags = test.tags.filter(isTestTagMatching);
+      } else if (isTestNameMatching) {
+        if (!isTestNameMatching(test.name)) {
+          log.debug('skipping test; test name does not match the filter');
 
-        if (!matchingTags.length) {
-          log.debug('skipping test; none of the test tags match the filter');
+          // eslint-disable-next-line no-continue
+          continue;
+        }
+      } else if (isTestLabelMatching) {
+        const matchingLabels = Object
+          .keys(test.labels)
+          .map((label) => {
+            return label + '=' + test.labels[label];
+          })
+          .filter(isTestLabelMatching);
+
+        if (!matchingLabels.length) {
+          log.debug('skipping test; none of the test labels match the filter');
 
           // eslint-disable-next-line no-continue
           continue;
         }
       }
 
-      log.debug('running test %s', test.description);
+      log.debug('running test %s', test.name);
 
       monitor.runTest(test);
     }

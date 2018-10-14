@@ -34,8 +34,11 @@ const queryFailingTests = async (graphqlClient: ApolloClient) => {
         edges {
           node {
             id
-            description
-            tags
+            labels {
+              name
+              value
+            }
+            name
             lastTestedAt
             testIsFailing
           }
@@ -60,6 +63,7 @@ export const description = 'Subscribes to the Palantir HTTP API and alerts other
 // eslint-disable-next-line flowtype/no-weak-types
 export const builder = (yargs: Object) => {
   return yargs
+    .env('PALANTIR_ALERT')
     .options({
       configuration: {
         demand: true,

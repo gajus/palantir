@@ -3,34 +3,51 @@
 import test from 'ava';
 import sinon from 'sinon';
 import type {
-  MonitorConfigurationType
+  MonitorConfigurationType,
+  RegisteredTestType
 } from '../../../src/types';
 import evaluateRegisteredTest from '../../../src/routines/evaluateRegisteredTest';
 
-const createTest = (id: string) => {
+const createTest = (registeredTest: $Shape<{...RegisteredTestType}> = {}): RegisteredTestType => {
   return {
-    assert: () => {
-      return true;
+    // @see https://github.com/facebook/flow/issues/6974
+    ...{
+      // eslint-disable-next-line no-unused-vars
+      assert: async (context) => {
+        return true;
+      },
+      consecutiveFailureCount: null,
+      id: '1',
+      // eslint-disable-next-line no-unused-vars
+      interval: (consecutiveFailureCount) => {
+        return 100;
+      },
+      labels: {},
+      lastError: null,
+      lastTestedAt: null,
+      name: '',
+      testIsFailing: null
     },
-    configuration: {},
-    consecutiveFailureCount: null,
-    description: '',
-    id,
-    interval: () => {
-      return 100;
-    },
-    lastQueryResult: null,
-    lastTestedAt: null,
-    query: async () => {},
-    tags: [],
-    testIsFailing: null
+    ...registeredTest
   };
 };
 
-test('calls query', async (t) => {
-  const registeredTest = createTest('1');
+const createTestConfiguration = (input: $Shape<{...MonitorConfigurationType}>): MonitorConfigurationType => {
+  return {
+    after: () => {},
+    afterTest: () => {},
+    before: () => {},
+    beforeTest: () => {
+      return {};
+    },
+    ...input
+  };
+};
 
-  const spy = sinon.spy(registeredTest, 'query');
+test('calls assert', async (t) => {
+  const registeredTest = createTest();
+
+  const spy = sinon.spy(registeredTest, 'assert');
 
   await evaluateRegisteredTest({}, registeredTest);
 
@@ -40,18 +57,18 @@ test('calls query', async (t) => {
   t.true(registeredTest.testIsFailing === false);
 });
 
-test('uses beforeTest to create query context', async (t) => {
+test('uses beforeTest to create assertion context', async (t) => {
   const expectedContext = {};
 
-  const configuration: MonitorConfigurationType = ({
+  const configuration = createTestConfiguration({
     beforeTest: () => {
       return expectedContext;
     }
-  }: any);
+  });
 
-  const registeredTest = createTest('1');
+  const registeredTest = createTest();
 
-  const spy = sinon.spy(registeredTest, 'query');
+  const spy = sinon.spy(registeredTest, 'assert');
 
   await evaluateRegisteredTest(configuration, registeredTest);
 
@@ -60,19 +77,15 @@ test('uses beforeTest to create query context', async (t) => {
 });
 
 test('uses afterTest to teardown code', async (t) => {
-  const expectedConfiguration = {};
   const expectedContext = {};
 
-  const configuration: MonitorConfigurationType = ({
-    afterTest: () => {},
+  const configuration = createTestConfiguration({
     beforeTest: () => {
       return expectedContext;
     }
-  }: any);
+  });
 
-  const registeredTest = createTest('1');
-
-  registeredTest.configuration = expectedConfiguration;
+  const registeredTest = createTest();
 
   const spy = sinon.spy(configuration, 'afterTest');
 
@@ -82,40 +95,26 @@ test('uses afterTest to teardown code', async (t) => {
   t.true(spy.calledWith(registeredTest, expectedContext));
 });
 
-test('marks test as failing if query throws an error', async (t) => {
-  const registeredTest = createTest('1');
+test('marks test as failing if assertion throws an error', async (t) => {
+  const registeredTest = createTest();
 
   const spy = sinon
-    .stub(registeredTest, 'query')
+    .stub(registeredTest, 'assert')
     .callsFake(() => {
-      throw new Error('test');
+      throw new Error('foo');
     });
 
   await evaluateRegisteredTest({}, registeredTest);
 
   t.true(spy.calledOnce);
   t.true(registeredTest.consecutiveFailureCount === 1);
+  t.true(registeredTest.lastError && registeredTest.lastError.message === 'foo');
   t.true(registeredTest.lastTestedAt !== null);
   t.true(registeredTest.testIsFailing === true);
 });
 
-test('calls assert with query result', async (t) => {
-  const registeredTest = createTest('1');
-
-  const result = Math.random();
-
-  sinon.stub(registeredTest, 'query').returns(result);
-
-  const spy = sinon.stub(registeredTest, 'assert');
-
-  await evaluateRegisteredTest({}, registeredTest);
-
-  t.true(spy.calledOnce);
-  t.true(spy.calledWith(result));
-});
-
 test('marks test as failing if assert returns false', async (t) => {
-  const registeredTest = createTest('1');
+  const registeredTest = createTest();
 
   const spy = sinon
     .stub(registeredTest, 'assert')
@@ -127,6 +126,7 @@ test('marks test as failing if assert returns false', async (t) => {
 
   t.true(spy.calledOnce);
   t.true(registeredTest.consecutiveFailureCount === 1);
+  t.true(registeredTest.lastError === null);
   t.true(registeredTest.lastTestedAt !== null);
   t.true(registeredTest.testIsFailing === true);
 });

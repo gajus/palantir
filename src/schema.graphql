@@ -37,20 +37,34 @@ type Interval {
   human: String!
 }
 
-# @todo Implement lastQueryError: JSON
+type Error {
+  name: String!
+  message: String!
+  stack: String!
+}
+
+type Label {
+  name: String!
+  value: String!
+}
+
 type RegisteredTest implements Node {
-  id: ID!
   configuration: JSON
-  description: String!
-  interval: Interval!
-  tags: [String!]!
-  lastQueryResult: JSON
-  lastTestedAt: DateTime
-  testIsFailing: Boolean
   consecutiveFailureCount: Int
+  explain: JSON
+  explainIsAvailable: Boolean!
+  id: ID!
+  labels: [Label!]!
+  lastError: Error
+  lastTestedAt: DateTime
+  name: String!
+  testIsFailing: Boolean
 }
 
 type Query {
+  getRegisteredTestById (
+    registeredTestId: ID!
+  ): RegisteredTest!
   registeredTests: RegisteredTestsConnection!
-  failingTests: RegisteredTestsConnection!
+  failingRegisteredTests: RegisteredTestsConnection!
 }

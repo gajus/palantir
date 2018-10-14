@@ -1,14 +1,17 @@
 // @flow
 
 import path from 'path';
+import webpack from 'webpack';
 
 export default (basePath: string) => {
-  return {
-    devtool: 'inline-source-map',
+  let configuration = {
+    devtool: 'source-map',
     entry: {
-      main: path.resolve(__dirname, '../report-web-app')
+      main: [
+        path.resolve(__dirname, '../report-web-app')
+      ]
     },
-    mode: 'development',
+    mode: 'production',
     module: {
       rules: [
         {
@@ -44,4 +47,25 @@ export default (basePath: string) => {
       publicPath: basePath + 'static/'
     }
   };
+
+  // eslint-disable-next-line no-process-env
+  if (process.env.NODE_ENV === 'development') {
+    configuration = {
+      ...configuration,
+      devtool: 'inline-source-map',
+      entry: {
+        ...configuration.entry,
+        main: [
+          'webpack-hot-middleware/client',
+          ...configuration.entry.main
+        ]
+      },
+      mode: 'development',
+      plugins: [
+        new webpack.HotModuleReplacementPlugin()
+      ]
+    };
+  }
+
+  return configuration;
 };

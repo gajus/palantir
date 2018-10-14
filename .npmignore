@@ -3,4 +3,3 @@ test
 coverage
 .*
 *.log
-!.static

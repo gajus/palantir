@@ -14,7 +14,7 @@ Active monitoring and alerting system using user-defined Node.js scripts.
 
 Existing monitoring software primarily focuses on enabling visual inspection of service health metrics and relies on service maintainers to detect anomalies. This approach is time consuming and allows for human-error. Even when monitoring systems allow to define alerts based on pre-defined thresholds, a point-in-time metric is not sufficient to determine service-health. The only way to establish service-health is to write thorough integration tests (scripts) and automate their execution, just like we do in software-development.
 
-Palantir is continuously performs user-defined tests and only reports failing tests, i.e. if everything is working as expected, the system remains silent. This allows service developers/maintainers to focus on defining tests that provide early warnings about the errors that are about to occur and take preventative actions when alerts occur.
+Palantir continuously performs user-defined tests and only reports failing tests, i.e. if everything is working as expected, the system remains silent. This allows service developers/maintainers to focus on defining tests that warn about the errors that are about to occur and automate troubleshooting.
 
 Palantir decouples monitoring, alerting and reporting mechanisms. This method allows distributed monitoring and role-based, tag-based alerting system architecture.
 
@@ -36,8 +36,15 @@ In order to observe project changes and restart all the services use a program s
 
 ```bash
 $ NODE_ENV=development nodemon --watch dist --ext js,graphql dist/bin/index.js monitor ...
-$ NODE_ENV=development nodemon --watch dist --ext js,graphql dist/bin/index.js report ...
+$ NODE_ENV=development nodemon --watch dist --ext js,graphql dist/bin/index.js alert ...
 
 ```
 
 Use `--watch` attribute multiple times to include Palantir project code and your configuration/ test scripts.
+
+`report` program run in `NODE_ENV=development` use `webpack-hot-middleware` to implement hot reloading.
+
+```bash
+$ NODE_ENV=development babel-node src/bin/index.js report --service-port 8081 --api-url http://127.0.0.1:8080/ | roarr pretty-print
+
+```

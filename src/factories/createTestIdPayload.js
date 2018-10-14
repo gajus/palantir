@@ -1,17 +1,19 @@
 // @flow
 
 import type {
+  LabelCollectionType,
   TestIdPayloadInputType
 } from '../types';
+import createLabelCollection from './createLabelCollection';
 
 type TestIdPayloadType = {|
-  +description: string,
-  +tags: $ReadOnlyArray<string>
+  +labels: LabelCollectionType,
+  +name: string
 |};
 
 export default (test: TestIdPayloadInputType): TestIdPayloadType => {
   return {
-    description: test.description,
-    tags: test.tags.slice(0).sort()
+    labels: createLabelCollection(test.labels),
+    name: test.name
   };
 };

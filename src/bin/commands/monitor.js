@@ -8,6 +8,7 @@ import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import GraphQLJSON from 'graphql-type-json';
+import expressPlayground from 'graphql-playground-middleware-express';
 import {
   GraphQLDateTime
 } from 'graphql-iso-date';
@@ -40,6 +41,7 @@ export const description = 'Continuously performs user-defined tests and exposes
 // eslint-disable-next-line flowtype/no-weak-types
 export const builder = (yargs: Object) => {
   return yargs
+    .env('PALANTIR_MONITOR')
     .options({
       configuration: {
         description: 'Path to the Palantir monitor configuration file.',
@@ -63,7 +65,13 @@ export const handler = async (argv: ArgvType) => {
     resolvers: {
       ...resolvers,
       DateTime: GraphQLDateTime,
-      JSON: GraphQLJSON
+      JSON: GraphQLJSON,
+      Node: {
+        // eslint-disable-next-line id-match
+        __resolveType () {
+          return null;
+        }
+      }
     },
     typeDefs: schemaDefinition
   });
@@ -92,11 +100,20 @@ export const handler = async (argv: ArgvType) => {
   const graphqlMiddleware = createGraphqlMiddleware(async () => {
     return {
       context: {
+        configuration,
         monitor
       },
       schema
     };
   });
+
+  app.use('/playground', expressPlayground({
+    endpoint: '/',
+    settings: {
+      'editor.cursorShape': 'line',
+      'request.credentials': 'same-origin'
+    }
+  }));
 
   app.use('/', bodyParser.json(), graphqlMiddleware);
 

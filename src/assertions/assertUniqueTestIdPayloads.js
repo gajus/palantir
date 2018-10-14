@@ -16,13 +16,15 @@ export default (tests: $ReadOnlyArray<TestIdPayloadInputType>): void => {
   for (const test of tests) {
     const testId = createTestId(test);
 
-    if (testMap.has(testId)) {
-      log.error({
-        first: testMap.get(testId),
-        second: test
-      }, 'found two tests with the same description and tags');
+    const first = testMap.get(testId);
 
-      throw new Error('Test description and tags combination must be unique.');
+    if (first) {
+      log.error({
+        first,
+        second: test
+      }, 'found two tests with the same name and labels');
+
+      throw new Error('Test name and labels combination must be unique.');
     }
 
     testMap.set(testId, test);

@@ -16,6 +16,7 @@ import type {
 } from '../types';
 import createIntervalRoutine from './createIntervalRoutine';
 import createTestId from './createTestId';
+import createTestPointer from './createTestPointer';
 
 const log = Logger.child({
   namespace: 'factories/createMonitor'
@@ -31,17 +32,25 @@ export default async (configuration: MonitorConfigurationType) => {
   const registeredTests: Array<RegisteredTestType> = [];
 
   const createRegisteredTest = (test): RegisteredTestType => {
-    assertUniqueTestIdPayloads(registeredTests.concat([test]));
+    assertUniqueTestIdPayloads(registeredTests.concat([
+      {
+        labels: test.labels,
+        name: test.name
+      }
+    ]));
 
-    const id = createTestId(test);
+    const id = createTestId({
+      labels: test.labels,
+      name: test.name
+    });
 
     return {
-      ...test,
       consecutiveFailureCount: null,
       id,
-      lastQueryResult: null,
+      lastError: null,
       lastTestedAt: null,
-      testIsFailing: null
+      testIsFailing: null,
+      ...test
     };
   };
 
@@ -81,7 +90,7 @@ export default async (configuration: MonitorConfigurationType) => {
       testScheduleWeakMap.set(registeredTest, cancelTestSchedule);
 
       log.info({
-        test: registeredTest
+        test: createTestPointer(registeredTest)
       }, 'registered test');
     },
     runTest: async (test: TestType) => {
@@ -111,7 +120,7 @@ export default async (configuration: MonitorConfigurationType) => {
       registeredTests.splice(registeredTests.indexOf(maybeRegisteredTest), 1);
 
       log.info({
-        test: maybeRegisteredTest
+        test: createTestPointer(maybeRegisteredTest)
       }, 'unregistered test');
     }
   };
