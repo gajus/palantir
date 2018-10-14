@@ -8,6 +8,8 @@
 
 Active monitoring and alerting system using user-defined Node.js scripts.
 
+![Dashboard screenshot](./.README/dashboard.png)
+
 {"gitdown": "contents"}
 
 ## Motivation
