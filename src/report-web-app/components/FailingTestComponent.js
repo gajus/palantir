@@ -56,7 +56,23 @@ class FailingTestComponent extends React.Component<FailingTestComponentPropsType
       </div>;
     }
 
-    return <article className={styles.test}>
+    let errorElement;
+
+    if (registeredTest.lastError) {
+      errorElement = <aside className={styles.error}>
+        <h1>
+          {registeredTest.lastError.name}
+        </h1>
+        <p>
+          {registeredTest.lastError.message}
+        </p>
+        <div className={styles.stack}>
+          {registeredTest.lastError.stack}
+        </div>
+      </aside>;
+    }
+
+    return <article className={styles.failingTest}>
       <dl className={styles.name}>
         <dt>
           Failing test
@@ -65,8 +81,8 @@ class FailingTestComponent extends React.Component<FailingTestComponentPropsType
           {registeredTest.name}
         </dd>
       </dl>
-
       {labelsElement}
+      {errorElement}
       {navigationElement}
     </article>;
   }
