@@ -25,7 +25,7 @@ Active monitoring and alerting system using user-defined Node.js scripts.
         * [Alert controller](#palantir-specification-alert-controller)
         * [Palantir HTTP API](#palantir-specification-palantir-http-api)
     * [Recipes](#palantir-recipes)
-        * [Dynamically generating a test suite](#palantir-recipes-dynamically-generating-a-test-suite)
+        * [Asynchronously creating a test suite](#palantir-recipes-asynchronously-creating-a-test-suite)
         * [Refreshing a test suit](#palantir-recipes-refreshing-a-test-suit)
     * [Development](#palantir-development)
 
@@ -35,7 +35,7 @@ Active monitoring and alerting system using user-defined Node.js scripts.
 
 Existing monitoring software primarily focuses on enabling visual inspection of service health metrics and relies on service maintainers to detect anomalies. This approach is time consuming and allows for human-error. Even when monitoring systems allow to define alerts based on pre-defined thresholds, a point-in-time metric is not sufficient to determine service-health. The only way to establish service-health is to write thorough integration tests (scripts) and automate their execution, just like we do in software-development.
 
-Palantir is continuously performs user-defined tests and only reports failing tests, i.e. if everything is working as expected, the system remains silent. This allows service developers/maintainers to focus on defining tests that provide early warnings about the errors that are about to occur and take preventative actions when alerts occur.
+Palantir continuously performs user-defined tests and only reports failing tests, i.e. if everything is working as expected, the system remains silent. This allows service developers/maintainers to focus on defining tests that warn about the errors that are about to occur and automate troubleshooting.
 
 Palantir decouples monitoring, alerting and reporting mechanisms. This method allows distributed monitoring and role-based, tag-based alerting system architecture.
 
@@ -111,27 +111,21 @@ $ palantir test --match-tag 'database' --configuration ./monitor-configuration.j
 Palantir test is an object with the following properties:
 
 ```js
-type TestContextType = Object;
-
-type QueryResultType = *;
-
-type TestConfigurationType = Object;
-
 /**
- * @property configuration Test-specific configuration.
- * @property description Test description.
- * @property interval Returns an interval (in milliseconds) at which the test should be executed.
- * @property tags An array of tags used for organisation of tests.
- * @property query Method used to query the data. If method execution results in an error, the test fails.
- * @property assert Method used to evaluate the response of query. If method returns `false`, the test fails.
+ * @property assert Evaluates user defined script. The result (boolean) indicates if test is passing.
+ * @property configuration User defined configuration accessible by the `beforeTest`.
+ * @property explain Provides information about an assertion.
+ * @property interval A function that describes the time when the test needs to be re-run.
+ * @property labels Arbitrary key=value labels used to categorise the tests.
+ * @property name Unique name of the test. A combination of test + labels must be unique across all test suites.
  */
 type TestType = {|
-  +configuration?: TestConfigurationType,
-  +description: string,
+  +assert: (context: TestContextType) => Promise<boolean>,
+  +configuration?: SerializableObjectType,
+  +explain?: (context: TestContextType) => Promise<$ReadOnlyArray<SerializableObjectType> | SerializableObjectType>,
   +interval: (consecutiveFailureCount: number) => number,
-  +tags: $ReadOnlyArray<string>,
-  +query: (context: TestContextType) => Promise<QueryResultType>,
-  +assert?: (queryResult: QueryResultType) => boolean
+  +labels: LabelsType,
+  +name: string
 |};
 
 ```
@@ -139,26 +133,24 @@ type TestType = {|
 In practice, an example of a test used to check whether HTTP resource is available could look like this:
 
 ```js
-// This example uses `interval` and `axios` NPM packages.
-
 {
-  description: 'https://go2cinema.com/ responds with 200',
-  interval: () => {
-    return interval('30 seconds');
-  },
-  query: async () => {
-    await axios('https://go2cinema.com/', {
+  assert: async () => {
+    await request('https://applaudience.com/', {
       timeout: interval('10 seconds')
     });
   },
-  tags: [
-    'go2cinema'
-  ]
+  interval: () => {
+    return interval('30 seconds');
+  },
+  labels: {
+    project: 'applaudience',
+    domain: 'http',
+    type: 'liveness-check'
+  },
+  name: 'https://applaudience.com/ responds with 200'
 }
 
 ```
-
-Notice that the `assert` method is optional. If `query` method evaluates without an error and `assert` method is not defined, then the test is considered to be passing.
 
 <a name="palantir-specification-palantir-test-suite"></a>
 ### Palantir test suite
@@ -177,7 +169,7 @@ Example:
 ```js
 // @flow
 
-import axios from 'axios';
+import request from 'axios';
 import interval from 'human-interval';
 import type {
   TestSuiteFactoryType
@@ -193,18 +185,17 @@ const createTestSuite: TestSuiteFactoryType = () => {
   return {
     tests: [
       {
-        configuration: {},
-        description: 'https://applaudience.com/ responds with 200',
-        interval: createIntervalCreator(interval('30 seconds')),
-        query: async () => {
-          await axios('https://applaudience.com/', {
+        assert: async () => {
+          await request('https://applaudience.com/', {
             timeout: interval('10 seconds')
           });
         },
-        tags: [
-          'http',
-          'applaudience'
-        ]
+        interval: createIntervalCreator(interval('30 seconds')),
+        labels: {
+          project: 'applaudience',
+          scope: 'http'
+        },
+        name: 'https://applaudience.com/ responds with 200'
       }
     ]
   }
@@ -214,12 +205,12 @@ export default createTestSuite;
 
 ```
 
-Note that the test suite factory may return a promise. Refer to [dynamically generating a test suite](dynamically-generating-a-test-suite) for a use case example.
+Note that the test suite factory may return a promise. Refer to [asynchronously creating a test suite](#asynchronously-creating-a-test-suite) for a use case example.
 
 <a name="palantir-specification-monitor-configuration"></a>
 ### Monitor configuration
 
-Palantir monitor program accepts `configuration` configuration (a path to a script).
+Palantir `monitor` program accepts `configuration` configuration (a path to a script).
 
 ```js
 /**
@@ -272,19 +263,19 @@ Test that requires connection to the database:
 
 ```js
 {
+  assert: (context) => {
+    return context.connection.any('SELECT 1');
+  },
   configuration: {
     database: true
   },
-  description: 'connects to the database',
   interval: () => {
     return interval('30 seconds');
   },
-  query: (context) => {
-    return context.connection.any('SELECT 1');
+  labels: {
+    scope: 'database'
   },
-  tags: [
-    'database'
-  ]
+  name: 'connects to the database'
 }
 
 ```
@@ -363,10 +354,10 @@ const sendMessage = (message) => {
 
 export default {
   onNewFailingTest: (test) => {
-    sendMessage('FAILURE ' + test.description + ' failed');
+    sendMessage('FAILURE ' + test.name + ' failed');
   },
   onRecoveredTest: (test) => {
-    sendMessage('RECOVERY ' + test.description + ' recovered');
+    sendMessage('RECOVERY ' + test.name + ' recovered');
   }
 };
 
@@ -427,7 +418,7 @@ const sendMessage = (message) => {
 
 const controller = createAlertController({
   delayFailure: (test) => {
-    if (test.tags.includes('database')) {
+    if (test.labels.scope === 'database') {
       return 0;
     }
 
@@ -465,29 +456,30 @@ Refer to the [schema.graphql](./src/schema.graphql) or [introspect the API](http
 <a name="palantir-recipes"></a>
 ## Recipes
 
-<a name="palantir-recipes-dynamically-generating-a-test-suite"></a>
-### Dynamically generating a test suite
+<a name="palantir-recipes-asynchronously-creating-a-test-suite"></a>
+### Asynchronously creating a test suite
 
-In some cases, the information required to construct a test suite needs to be accessed asynchronously, e.g. when it is stored in the database. In this case, a test suite factory can return a promise that resolves with a test suite, e.g.
+Creating a test suite might require to query an asynchronous source, e.g. when information required to create a test suite is stored in a database. In this case, a test suite factory can return a promise that resolves with a test suite, e.g.
 
 ```js
 const createTestSuite: TestSuiteFactoryType = async () => {
   const clients = await getClients(connection);
 
-  return clients.map((clients) => {
+  return clients.map((client) => {
     return {
-      configuration: {},
-      description: client.url + ' responds with 200',
-      interval: createIntervalCreator(interval('30 seconds')),
-      query: async () => {
-        await axios(client.url, {
+      assert: async () => {
+        await request(client.url, {
           timeout: interval('10 seconds')
         });
       },
-      tags: [
-        'http',
-        'client:' + client.nid
-      ]
+      interval: createIntervalCreator(interval('30 seconds')),
+      labels: {
+        'client.country': client.country,
+        'client.id': client.id,
+        domain: 'http',
+        type: 'liveness-check'
+      },
+      name: client.url + ' responds with 200'
     };
   });
 };
@@ -499,7 +491,7 @@ In the above example, `getClients` is used to asynchronously retrieve informatio
 <a name="palantir-recipes-refreshing-a-test-suit"></a>
 ### Refreshing a test suit
 
-In some cases, it might be desired that the test suite itself informs the monitor about new tests, e.g. the example in the [dynamically generating a test suite](dynamically-generating-a-test-suite) recipe retrieves information from an external datasource that may change over time. In this case, a test suite factory can inform the `monitor` program that it should recreate the test, e.g.
+It might be desired that the test suite itself informs the monitor about new tests, e.g. the example in the [asynchronously creating a test suite](#asynchronously-creating-a-test-suite) recipe retrieves information from an external datasource that may change over time. In this case, a test suite factory can inform the `monitor` program that it should recreate the test suite, e.g.
 
 ```js
 const createTestSuite: TestSuiteFactoryType = async (refreshTestSuite) => {
@@ -521,20 +513,21 @@ const createTestSuite: TestSuiteFactoryType = async (refreshTestSuite) => {
     }
   })();
 
-  return clients.map((clients) => {
+  return clients.map((client) => {
     return {
-      configuration: {},
-      description: client.url + ' responds with 200',
-      interval: createIntervalCreator(interval('30 seconds')),
-      query: async () => {
-        await axios(client.url, {
+      assert: async () => {
+        await request(client.url, {
           timeout: interval('10 seconds')
         });
       },
-      tags: [
-        'http',
-        'client:' + client.nid
-      ]
+      interval: createIntervalCreator(interval('30 seconds')),
+      labels: {
+        'client.country': client.country,
+        'client.id': client.id,
+        domain: 'http',
+        type: 'liveness-check'
+      },
+      name: client.url + ' responds with 200'
     };
   });
 };
@@ -553,8 +546,15 @@ In order to observe project changes and restart all the services use a program s
 
 ```bash
 $ NODE_ENV=development nodemon --watch dist --ext js,graphql dist/bin/index.js monitor ...
-$ NODE_ENV=development nodemon --watch dist --ext js,graphql dist/bin/index.js report ...
+$ NODE_ENV=development nodemon --watch dist --ext js,graphql dist/bin/index.js alert ...
 
 ```
 
 Use `--watch` attribute multiple times to include Palantir project code and your configuration/ test scripts.
+
+`report` program run in `NODE_ENV=development` use `webpack-hot-middleware` to implement hot reloading.
+
+```bash
+$ NODE_ENV=development babel-node src/bin/index.js report --service-port 8081 --api-url http://127.0.0.1:8080/ | roarr pretty-print
+
+```
