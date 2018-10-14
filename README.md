@@ -9,6 +9,8 @@
 
 Active monitoring and alerting system using user-defined Node.js scripts.
 
+![Dashboard screenshot](./.README/dashboard.png)
+
 * [Palantir](#palantir)
     * [Motivation](#palantir-motivation)
         * [Further reading](#palantir-motivation-further-reading)
