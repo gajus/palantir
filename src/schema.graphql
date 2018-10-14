@@ -54,6 +54,7 @@ type RegisteredTest implements Node {
   explain: JSON
   explainIsAvailable: Boolean!
   id: ID!
+  interval: Interval!
   labels: [Label!]!
   lastError: Error
   lastTestedAt: DateTime
