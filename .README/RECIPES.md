@@ -19,7 +19,7 @@ const createTestSuite: TestSuiteFactoryType = async () => {
       labels: {
         'client.country': client.country,
         'client.id': client.id,
-        domain: 'http',
+        source: 'http',
         type: 'liveness-check'
       },
       name: client.url + ' responds with 200'
@@ -66,7 +66,7 @@ const createTestSuite: TestSuiteFactoryType = async (refreshTestSuite) => {
       labels: {
         'client.country': client.country,
         'client.id': client.id,
-        domain: 'http',
+        source: 'http',
         type: 'liveness-check'
       },
       name: client.url + ' responds with 200'
