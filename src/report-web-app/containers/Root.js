@@ -114,12 +114,12 @@ class Root extends React.Component<void, RootStateType> {
     let bodyElement;
 
     if (!failingRegisteredTestsIsLoaded) {
-      bodyElement = <div id='error'>
-        Loading
+      bodyElement = <div className={styles.activityMessage}>
+        Loading the failing test cases.
       </div>;
     } else if (failingRegisteredTestsError) {
-      bodyElement = <div id='error'>
-        Unable to load data
+      bodyElement = <div className={styles.errorMessage}>
+        Unable to load the failing test cases.
       </div>;
     } else if (failingRegisteredTests.length) {
       const failingTestElements = failingRegisteredTests.map((registeredTest) => {
@@ -165,7 +165,7 @@ class Root extends React.Component<void, RootStateType> {
     } else {
       testPanelElement = <div className={styles.testPanel}>
         <div className={styles.message}>
-          Select a test
+          Select a test.
         </div>
       </div>;
     }

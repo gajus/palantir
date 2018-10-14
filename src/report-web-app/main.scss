@@ -92,13 +92,20 @@ $color-error-background: #cc0000;
     margin-right: calc(30vw + 20px);
     overflow: hidden;
   }
+}
 
-  #error {
-    background: #860004;
-    color: #fff;
-    padding: 20px;
-    text-align: center;
-  }
+.activity-message {
+  border: 1px solid $color-border-secondary;
+  color: $color-text-secondary-text;
+  padding: 20px;
+  text-align: center;
+}
+
+.error-message {
+  background: $color-error-background;
+  color: #fff;
+  padding: 21px;
+  text-align: center;
 }
 
 .tests {
