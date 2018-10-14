@@ -8,6 +8,8 @@
 
 Active monitoring and alerting system using user-defined Node.js scripts.
 
+![Dashboard screenshot](./.README/dashboard.png)
+
 ## Features
 
 * Programmatic test cases (write your own checks using Node.js). (🔥 ready)
@@ -19,7 +21,7 @@ Active monitoring and alerting system using user-defined Node.js scripts.
 * Produce charts using troubleshooting output. (🗺️ in roadmap)
 * Hosted Palantir instance with tests run using serverless infrastructure, persistent dashboards, integrated timeseries database and notifcations. (💵 commercial) (🗺️ in roadmap)
 
-![Dashboard screenshot](./.README/dashboard.png)
+## Contents
 
 {"gitdown": "contents"}
 
