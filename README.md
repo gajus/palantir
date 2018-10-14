@@ -9,8 +9,6 @@
 
 Active monitoring and alerting system using user-defined Node.js scripts.
 
-![Dashboard screenshot](./.README/dashboard.png)
-
 <a name="palantir-features"></a>
 ## Features
 
@@ -22,6 +20,8 @@ Active monitoring and alerting system using user-defined Node.js scripts.
 * Create browser-session specific dashboards. (🗺️ in roadmap)
 * Produce charts using troubleshooting output. (🗺️ in roadmap)
 * Hosted Palantir instance with tests run using serverless infrastructure, persistent dashboards, integrated timeseries database and notifcations. (💵 commercial) (🗺️ in roadmap)
+
+![Dashboard screenshot](./.README/dashboard.png)
 
 * [Palantir](#palantir)
     * [Features](#palantir-features)
