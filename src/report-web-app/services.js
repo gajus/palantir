@@ -63,7 +63,10 @@ export const getRegisteredTestById = async (graphqlClient: ApolloClient, registe
       ) {
         id
         name
-        explain
+        explain {
+          explanation
+          name
+        }
       }
     }
   `;

@@ -221,10 +221,23 @@ class Root extends React.Component<void, RootStateType> {
         </div>
       </div>;
     } else if (subjectTest) {
+      const explanationElements = subjectTest.explain.map((explanation) => {
+        return <li key={explanation.name}>
+          <dl>
+            <dt>
+              {explanation.name}
+            </dt>
+            <dd>
+              {JSON.stringify(explanation.explanation, null, 2)}
+            </dd>
+          </dl>
+        </li>;
+      });
+
       testPanelElement = <div className={styles.testPanel}>
-        <div className={styles.explain}>
-          {JSON.stringify(subjectTest.explain, null, 2)}
-        </div>
+        <ol className={styles.explanations}>
+          {explanationElements}
+        </ol>
       </div>;
     } else {
       testPanelElement = <div className={styles.testPanel}>

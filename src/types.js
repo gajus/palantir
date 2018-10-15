@@ -25,10 +25,15 @@ type LabelPairType = {|
 
 export type LabelCollectionType = $ReadOnlyArray<LabelPairType>;
 
+type ExplanationType = {|
+  +explanation: $ReadOnlyArray<SerializableObjectType> | SerializableObjectType,
+  +name: string
+|};
+
 /**
  * @property assert Evaluates user defined script. The result (boolean) indicates if test is passing.
  * @property configuration User defined configuration accessible by the `beforeTest`.
- * @property explain Provides information about an assertion.
+ * @property explain Provides debugging information about the test.
  * @property interval A function that describes the time when the test needs to be re-run.
  * @property labels Arbitrary key=value labels used to categorise the tests.
  * @property name Unique name of the test. A combination of test + labels must be unique across all test suites.
@@ -37,7 +42,7 @@ export type LabelCollectionType = $ReadOnlyArray<LabelPairType>;
 export type TestType = {|
   +assert: (context: TestContextType) => Promise<boolean>,
   +configuration?: SerializableObjectType,
-  +explain?: (context: TestContextType) => Promise<$ReadOnlyArray<SerializableObjectType> | SerializableObjectType>,
+  +explain?: (context: TestContextType) => Promise<$ReadOnlyArray<ExplanationType>>,
   +interval: (consecutiveFailureCount: number) => number,
   +labels: LabelsType,
   +name: string,

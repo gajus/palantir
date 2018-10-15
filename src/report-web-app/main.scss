@@ -252,13 +252,31 @@ $color-error-background: #cc0000;
     color: $color-text-secondary-text;
   }
 
-  .explain {
-    background: #ffe7e8;
-    border-left: 5px solid #e66465;
-    font-family: consolas,"Liberation Mono",courier,monospace;
+  .explanations {
     margin: 20px;
-    padding: 10px;
-    white-space: pre;
+
+    li {
+      margin-top: 20px;
+
+      &:first-child {
+        margin: 0;
+      }
+    }
+
+    dt {
+      display: block;
+      color: $color-text-secondary-text;
+      margin: 0 0 10px 0;
+    }
+
+    dd {
+      background: #ffe7e8;
+      border-left: 5px solid #e66465;
+      font-family: consolas,"Liberation Mono",courier,monospace;
+      padding: 10px;
+      white-space: pre;
+      display: block;
+    }
   }
 }
 

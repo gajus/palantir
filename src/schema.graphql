@@ -48,10 +48,15 @@ type Label {
   value: String!
 }
 
+type Explanation {
+  name: String!
+  explanation: JSON
+}
+
 type RegisteredTest implements Node {
   configuration: JSON
   consecutiveFailureCount: Int
-  explain: JSON
+  explain: [Explanation!]!
   explainIsAvailable: Boolean!
   id: ID!
   interval: Interval!

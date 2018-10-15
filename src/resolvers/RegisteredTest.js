@@ -15,9 +15,10 @@ import type {
 const RegisteredTest: ResolverType<RegisteredTestType> = {
   explain: (registeredTest, parameters, context) => {
     if (!registeredTest.explain) {
-      return null;
+      return [];
     }
 
+    // @todo Add runtime validation of the explain output.
     return explainTest(context.configuration, registeredTest);
   },
   explainIsAvailable: (registeredTest) => {
