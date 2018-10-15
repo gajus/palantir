@@ -256,3 +256,43 @@ $color-error-background: #cc0000;
     white-space: pre;
   }
 }
+
+.test-filter {
+  margin-bottom: 20px;
+
+  input {
+    background: #0a0b0c;
+    border: 1px solid $color-border-secondary;
+    box-shadow: 0px 3px 1px -2px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 1px 5px 0px rgba(0,0,0,0.12);
+    display: block;
+    position: relative;
+    width: 100%;
+    height: 40px;
+    font: inherit;
+    color: $color-text-secondary-text;
+    padding: 10px;
+
+    &:focus {
+      background: #252e2e;
+      border-color: #73c990;
+      color: #fff;
+    }
+  }
+
+  .instructions {
+    padding: 10px;
+    margin-top: 10px;
+    color: $color-text-secondary-text;
+
+    a {
+      text-decoration: underline;
+    }
+  }
+
+  .error-message {
+    background: $color-error-background;
+    color: #fff;
+    padding: 10px;
+    margin-top: 10px;
+  }
+}
