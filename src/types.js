@@ -101,7 +101,8 @@ type MonitorType = {|
 |};
 
 export type ResolverContextType = {|
-  monitor: MonitorType
+  +configuration: MonitorConfigurationType,
+  +monitor: MonitorType
 |};
 
 export type ResolverType<T, P: * = Object> = {

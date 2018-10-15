@@ -3,7 +3,7 @@
 import type {
   LabelCollectionType,
   LabelsType
-} from '../types';
+} from '../../types';
 
 export default (labelCollection: LabelCollectionType): LabelsType => {
   // eslint-disable-next-line flowtype/no-weak-types
