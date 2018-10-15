@@ -13,12 +13,12 @@ import type {
 } from '../types';
 
 const RegisteredTest: ResolverType<RegisteredTestType> = {
-  explain: (registeredTest, parameters) => {
+  explain: (registeredTest, parameters, context) => {
     if (!registeredTest.explain) {
       return null;
     }
 
-    return explainTest(parameters.configuration, registeredTest);
+    return explainTest(context.configuration, registeredTest);
   },
   explainIsAvailable: (registeredTest) => {
     return Boolean(registeredTest.explain);
