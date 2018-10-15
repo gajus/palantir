@@ -27,7 +27,9 @@ class TestFilter extends React.Component<TestFilterPropsType> {
         type='text'
       />
       <div className={styles.instructions}>
-        <p>Failing tests can be filtered using <a href='https://docs.mongodb.com/manual/reference/operator/' target='_blank'>MongoDB query expressions</a>.</p>
+        <p>
+          Failing tests can be filtered using <a href='https://docs.mongodb.com/manual/reference/operator/' rel='noopener noreferrer' target='_blank'>MongoDB query expressions</a>.
+        </p>
       </div>
       {filterErrorElement}
     </div>;
