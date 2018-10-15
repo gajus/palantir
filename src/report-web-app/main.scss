@@ -191,6 +191,7 @@ $color-error-background: #cc0000;
         border: 1px solid $color-border-secondary;
         padding: 5px 10px;
         margin: 0 5px 5px 0;
+        cursor: pointer;
 
         dl {
           display: block;
@@ -199,6 +200,10 @@ $color-error-background: #cc0000;
             display: inline-block;
             font-weight: bold;
           }
+        }
+
+        &:hover {
+          background: rgba(0,0,0,0.2);
         }
       }
     }

@@ -3,6 +3,9 @@
 import gql from 'graphql-tag';
 // eslint-disable-next-line import/no-named-as-default
 import ApolloClient from 'apollo-boost';
+import {
+  createLabelsObject
+} from './factories';
 import type {
   FailingTestType,
   SubjectTestType
@@ -42,7 +45,10 @@ export const getFailingRegisteredTests = async (graphqlClient: ApolloClient): Pr
   });
 
   return result.data.failingRegisteredTests.edges.map((edge) => {
-    return edge.node;
+    return {
+      ...edge.node,
+      labels: createLabelsObject(edge.node.labels)
+    };
   });
 };
 
