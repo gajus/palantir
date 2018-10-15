@@ -8,25 +8,39 @@ import type {
 import TextButtonComponent from './TextButtonComponent';
 
 type FailingTestComponentPropsType = {|
-  +registeredTest: FailingTestType,
-  +onExplainRegisteredTest: (registeredTestId: string) => void
+  +onExplainRegisteredTest: (registeredTestId: string) => void,
+  +onFilterExpressionChange: (filterExpression: string) => void,
+  +registeredTest: FailingTestType
 |};
 
 class FailingTestComponent extends React.Component<FailingTestComponentPropsType> {
   render () {
     const {
-      registeredTest,
-      onExplainRegisteredTest
+      onExplainRegisteredTest,
+      onFilterExpressionChange,
+      registeredTest
     } = this.props;
 
-    const tagElements = registeredTest.labels.map((label) => {
-      return <li key={label.name}>
+    const labelElements = Object.keys(registeredTest.labels).map((labelName) => {
+      return <li
+        key={labelName}
+        onClick={() => {
+          onFilterExpressionChange(JSON.stringify({
+            labels: {
+              [labelName]: {
+                // eslint-disable-next-line id-match
+                $eq: registeredTest.labels[labelName]
+              }
+            }
+          }));
+        }}
+      >
         <dl>
           <dt>
-            {label.name}
+            {labelName}
           </dt>
           <dd>
-            {label.value}
+            {registeredTest.labels[labelName]}
           </dd>
         </dl>
       </li>;
@@ -38,7 +52,7 @@ class FailingTestComponent extends React.Component<FailingTestComponentPropsType
       </h1>
 
       <ul className={styles.labels}>
-        {tagElements}
+        {labelElements}
       </ul>
     </aside>;
 

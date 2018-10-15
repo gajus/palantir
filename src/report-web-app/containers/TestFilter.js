@@ -4,6 +4,7 @@ import React from 'react';
 import styles from '../main.scss';
 
 type TestFilterPropsType = {|
+  +filterExpression: string,
   +filterExpressionError: Error | null,
   +onFilterExpressionChange: (filterExpression: string) => void
 |};
@@ -25,6 +26,7 @@ class TestFilter extends React.Component<TestFilterPropsType> {
         }}
         placeholder='Failing test filter'
         type='text'
+        value={this.props.filterExpression}
       />
       <div className={styles.instructions}>
         <p>

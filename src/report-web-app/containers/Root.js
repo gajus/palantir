@@ -189,6 +189,7 @@ class Root extends React.Component<void, RootStateType> {
           return <li key={registeredTest.id}>
             <FailingTestComponent
               onExplainRegisteredTest={this.handleExplainRegisteredTest}
+              onFilterExpressionChange={this.handleTestFilterExpressionChange}
               registeredTest={registeredTest}
             />
           </li>;
@@ -235,6 +236,7 @@ class Root extends React.Component<void, RootStateType> {
 
     return <div id='dashboard'>
       <TestFilter
+        filterExpression={this.state.testFilterExpression}
         filterExpressionError={this.state.testFilterExpressionError}
         onFilterExpressionChange={this.handleTestFilterExpressionChange}
       />
