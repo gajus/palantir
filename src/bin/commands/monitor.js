@@ -73,6 +73,9 @@ export const handler = async (argv: ArgvType) => {
         }
       }
     },
+    resolverValidationOptions: {
+      requireResolversForResolveType: false
+    },
     typeDefs: schemaDefinition
   });
 
